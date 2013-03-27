@@ -1,0 +1,21 @@
+{
+  "title"           : "The Peoples E-Book",
+  "url"             : "http://thepeoplesebook.net",
+  "language"        : "en-US",
+  "date"            : "2013-03-23",
+  "subtitle"        : "We read ebooks for breakfast",
+  "creator"         : {
+    "name"    : "Greg Albers",
+    "role"    : "aut",
+    "file-as" : "Albers, Greg"
+  },
+  "contributors"    : [{
+    "name"    : "Carina Johnson",
+    "role"    : "vdg",
+    "file-as" : "Johnson, Carina"
+  }],
+  "publisher"       : "Hol Art Books",
+  "description"     : "A sample e-book, using the EPUB 3.0 spec, for the creation of The People's E-Book",
+  "subjects"        : ["subject__ebooks", "subject__people"],
+  "rights"          : "This work, is distributed under the Creative Commons Attribution-Noncommercial-Share Alike License (http://creativecommons.org/licenses/by-nc-sa/3.0/us). All other uses not covered by this license require direct permission from the author."
+}

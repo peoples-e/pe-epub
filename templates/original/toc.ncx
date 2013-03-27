@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+ 
+ <head>
+    <meta name="dtb:uid" content="9781234567890"/>
+ </head>
+ 
+ <docTitle>
+    <text>The People's E-Book</text>
+ </docTitle>
+
+<navMap>
+   	   		
+   	<navPoint id="navPoint-1" playOrder="1" class="chapter">   
+   		<navLabel><text>Intro</text></navLabel>
+        <content src="e001.html"/>    
+	</navPoint>  
+	<navPoint id="navPoint-2" playOrder="2" class="chapter">   
+   		<navLabel><text>100 Years of Alternative Publishing</text></navLabel>
+        <content src="e002.html"/>    
+	</navPoint>  
+	<navPoint id="navPoint-3" playOrder="3" class="chapter">   
+   		<navLabel><text>How We E-Book</text></navLabel>
+        <content src="e003.html"/>    
+	</navPoint>  
+	<navPoint id="navPoint-4" playOrder="4" class="chapter">   
+   		<navLabel><text>Who We Are</text></navLabel>
+        <content src="e004.html"/>    
+	</navPoint>  
+	<navPoint id="navPoint-5" playOrder="5" class="chapter">   
+   		<navLabel><text>Video</text></navLabel>
+        <content src="e005.html"/>    
+	</navPoint>  
+	<navPoint id="navPoint-6" playOrder="6" class="chapter">   
+   		<navLabel><text>Audio</text></navLabel>
+        <content src="e006.html"/>    
+	</navPoint>     		
+    
+</navMap>
+
+</ncx>
+
+<!-- Created with The People's E-Book at http://thepeoplesebook.net -->

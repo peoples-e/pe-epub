@@ -1,0 +1,15 @@
+{
+  "name": "Peepub",
+  "description": "JSON to EPUB",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+	  "handlebars" : "1.0.x",
+	  "lodash" : "*",
+	  "jsdom" : "0.5.x"
+  },
+  "devDependencies" : {
+    "jasmine-node" : "1.4.x",
+    "lodash" : "*"
+  }
+}
