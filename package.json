@@ -6,7 +6,7 @@
   "dependencies": {
 	  "handlebars" : "1.0.x",
 	  "lodash" : "*",
-	  "jsdom" : "0.5.x",
+	  "cheerio" : "0.10.x",
 	  "node-zip" : "1.x"
   },
   "devDependencies" : {

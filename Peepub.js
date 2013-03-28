@@ -1,7 +1,9 @@
 var _          = require('lodash');
 var handlebars = require('handlebars');
 var fs         = require("fs");
-var jsdom      = require('jsdom');
+var cheerio    = require('cheerio');
+var http       = require('http');
+var path       = require('path');
 
 var templatesDir = __dirname + '/templates/';
 
@@ -22,10 +24,16 @@ function Peepub(){
   if(arguments[0]){
     this.json = arguments[0];
   }
+  this.id = guid();
   this.requiredFields = ['title', 'cover']; // we'll take care of publish date and uuid
-  
+  this.assets = {
+    css     : [],
+    js      : [],
+    assets  : []
+  }
   
 }
+Peepub.EPUB_DIR = __dirname + '/epubs/';
 
 Peepub.prototype._handleDefaults = function(){
   
@@ -50,28 +58,62 @@ Peepub.prototype._handleDefaults = function(){
   // creators
 }
 
+Peepub.prototype._epubPath = function(add){
+  var dir = Peepub.EPUB_DIR + this.id + '/';
+  if(add){ 
+    this._epubPath();
+    dir += add + '/';
+  }
+  if(!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+  } 
+  return dir;
+}
+
 Peepub.prototype._gatherAssets = function(callback){
   // images
-  var json = this.getJson();
-  var str = _.map(json.pages, function(page){ return page.body }).join('');
-  this._getDom(str, function($, $dom){
-    var imgs = [json.cover];
-    callback(imgs.concat(_.map($dom.find('img'), function(i){ return $(i).attr('src'); })));
+  var that      = this;
+  var json      = this.getJson();
+  var all_pages = _.map(json.pages, function(page){ return page.body }).join('');
+  var $         = this._getDom(all_pages);
+  var images    = ([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })); 
+  
+  function _check_all_good(){
+    if(that.assets.assets.length === images.length){
+      callback(that.assets.assets);
+    }
+  }
+  
+  _.each(images, function(img){
+    http.get(img, function(res){
+      var filePath = that._epubPath('assets') + path.basename(img);
+      res.pipe(fs.createWriteStream(filePath));
+      that.assets.assets.push({
+        src : img,
+        'content-type' : res.headers['content-type'],
+        file : filePath
+      });
+      _check_all_good();
+    });
+    
   });
+    
   
 }
 
-Peepub.prototype._getDom = function(str, callback){
+Peepub.prototype._getDom = function(str){
   var that = this;
   var uuid = guid();
-  jsdom.env(
-    "<div id='"+uuid+"'>" + str + '</div>',
-    ["http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"],
-    function(errors, window) {
-      var $ = window.$;
-      callback($, $('#' + uuid));
-    }
-  );
+  return cheerio.load("<div id='"+uuid+"'>" + str + '</div>');
+  
+  // jsdom.env(
+  //   ,
+  //   ["http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"],
+  //   function(errors, window) {
+  //     var $ = window.$;
+  //     callback($, $('#' + uuid));
+  //   }
+  // );
 }
 
 Peepub.prototype.getJson = function(){
@@ -106,9 +148,9 @@ Peepub.prototype.getJson = function(){
 
 Peepub.prototype.contentOpf = function(){
   var template = fs.readFileSync(templatesDir + "content.opf", "utf8");
-  this._gatherAssets(function(imgs){
-    console.log(imgs);
-  });
+  // this._gatherAssets(function(imgs){
+  //   console.log(imgs);
+  // });
   return handlebars.compile(template)(this.getJson());
 }
 
