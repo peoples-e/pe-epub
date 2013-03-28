@@ -1,5 +1,6 @@
 {
   "title"           : "The Peoples E-Book",
+  "cover"           : "http://chestofbooks.com/crafts/scientific-american/sup3/images/FIG-1-MARINONI-S-ROTARY-PRINTING-PRESS.png",
   "url"             : "http://thepeoplesebook.net",
   "language"        : "en-US",
   "date"            : "2013-03-23",
@@ -17,5 +18,9 @@
   "publisher"       : "Hol Art Books",
   "description"     : "A sample e-book, using the EPUB 3.0 spec, for the creation of The People's E-Book",
   "subjects"        : ["subject__ebooks", "subject__people"],
-  "rights"          : "This work, is distributed under the Creative Commons Attribution-Noncommercial-Share Alike License (http://creativecommons.org/licenses/by-nc-sa/3.0/us). All other uses not covered by this license require direct permission from the author."
+  "rights"          : "This work, is distributed under the Creative Commons Attribution-Noncommercial-Share Alike License (http://creativecommons.org/licenses/by-nc-sa/3.0/us). All other uses not covered by this license require direct permission from the author.",
+  "pages" : [{
+    "title" : "Page 1",
+    "body" : "<p><img src='http://api.ning.com/files/T9LoqtopN-PL4w52C1thvJnPUOn6cGxwi25gaASf1qdU*upm*PUy8FThR74usF*lnvhIuDOmVT6v16uVPuzA1xMl9QtLosa*/Boys20reading20books.jpg'/></p>"
+  }]
 }

@@ -6,7 +6,8 @@
   "dependencies": {
 	  "handlebars" : "1.0.x",
 	  "lodash" : "*",
-	  "jsdom" : "0.5.x"
+	  "jsdom" : "0.5.x",
+	  "node-zip" : "1.x"
   },
   "devDependencies" : {
     "jasmine-node" : "1.4.x",

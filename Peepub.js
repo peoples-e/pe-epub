@@ -1,31 +1,33 @@
 var _          = require('lodash');
 var handlebars = require('handlebars');
 var fs         = require("fs");
+var jsdom      = require('jsdom');
 
 var templatesDir = __dirname + '/templates/';
+
+function s4() {
+  return Math.floor((1 + Math.random()) * 0x10000)
+             .toString(16)
+             .substring(1);
+};
+
+function guid() {
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+         s4() + '-' + s4() + s4() + s4();
+}
+
 
 function Peepub(){
   this.json = {};
   if(arguments[0]){
     this.json = arguments[0];
   }
-  this.requiredFields = ['title','creators']; // we'll take care of publish date and uuid
-  
+  this.requiredFields = ['title', 'cover']; // we'll take care of publish date and uuid
   
   
 }
 
 Peepub.prototype._handleDefaults = function(){
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-               .toString(16)
-               .substring(1);
-  };
-
-  function guid() {
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-           s4() + '-' + s4() + s4() + s4();
-  }
   
   var d = new Date;
   var m = d.getMonth() + 1 + '';
@@ -46,6 +48,30 @@ Peepub.prototype._handleDefaults = function(){
   }
   
   // creators
+}
+
+Peepub.prototype._gatherAssets = function(callback){
+  // images
+  var json = this.getJson();
+  var str = _.map(json.pages, function(page){ return page.body }).join('');
+  this._getDom(str, function($, $dom){
+    var imgs = [json.cover];
+    callback(imgs.concat(_.map($dom.find('img'), function(i){ return $(i).attr('src'); })));
+  });
+  
+}
+
+Peepub.prototype._getDom = function(str, callback){
+  var that = this;
+  var uuid = guid();
+  jsdom.env(
+    "<div id='"+uuid+"'>" + str + '</div>',
+    ["http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"],
+    function(errors, window) {
+      var $ = window.$;
+      callback($, $('#' + uuid));
+    }
+  );
 }
 
 Peepub.prototype.getJson = function(){
@@ -80,7 +106,23 @@ Peepub.prototype.getJson = function(){
 
 Peepub.prototype.contentOpf = function(){
   var template = fs.readFileSync(templatesDir + "content.opf", "utf8");
+  this._gatherAssets(function(imgs){
+    console.log(imgs);
+  });
   return handlebars.compile(template)(this.getJson());
+}
+
+Peepub.prototype.getPage = function(i, callback){
+  var that = this;
+  var uuid = guid();
+  jsdom.env(
+    "<div id='"+uuid+"'>" + that.getJson().pages[i].body + '</div>',
+    ["http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"],
+    function(errors, window) {
+      var $ = window.$;
+      callback($('#' + uuid).html());
+    }
+  );
 }
 
 Peepub.prototype.set = function(key, val){

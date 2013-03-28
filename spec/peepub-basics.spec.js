@@ -1,17 +1,19 @@
 var Peepub = require('../Peepub.js');
 var _      = require('lodash');
 
-describe("Peepub", function() {
+describe("Peepub Basics", function() {
   
   it("is a function", function() {
     expect(typeof Peepub).toBe('function');
   });
   
   var epubJson = require('../example.json');
-  var pp;
+  var minimumEpubJson = require('../minimum.json');
+  var pp,min_pp;
   
   beforeEach(function(){
     pp = new Peepub(_.cloneDeep(epubJson));
+    min_pp = new Peepub(_.cloneDeep(minimumEpubJson));
   });
   
   it("can template", function(){
@@ -22,7 +24,7 @@ describe("Peepub", function() {
     for(var i in epubJson.subjects){
       expect(pp.contentOpf().match(epubJson.subjects[i])).not.toBeNull();
     }
-    console.log(pp.contentOpf());
+    // console.log(pp.contentOpf());
   });
   
   it("creates uuids by default", function(){
@@ -53,5 +55,9 @@ describe("Peepub", function() {
     pp.set('subjects', null);
     expect(pp.contentOpf().match(epubJson.subjects[0])).not.toBeNull();
     expect(pp.contentOpf().match(epubJson.subjects[1])).toBeNull();
-  })
+  });
+
+  
+  
+  
 });
