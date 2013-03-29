@@ -36,7 +36,7 @@ xdescribe("Page Handling", function() {
   // });
 });
 
-describe("Async Page Handling", function(){
+xdescribe("Async Page Handling", function(){
   var epubJson = require('../example.json');
   var minimumEpubJson = require('../minimum.json');
   var pp,min_pp;
@@ -47,8 +47,8 @@ describe("Async Page Handling", function(){
   });
   
   afterEach(function() {
-    pp.clean();
-    min_pp.clean();
+    // pp.clean();
+    // min_pp.clean();
   });
   
   it("can make a contentOpf Asynch", function(){

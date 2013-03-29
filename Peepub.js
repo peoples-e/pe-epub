@@ -7,6 +7,7 @@ var path       = require('path');
 
 var templatesDir = __dirname + '/templates/';
 
+// utils
 function s4() {
   return Math.floor((1 + Math.random()) * 0x10000)
              .toString(16)
@@ -34,7 +35,9 @@ function deleteFolderRecursive(path) {
     }
 };
 
-
+/**
+ *
+ */
 function Peepub(){
   this.json = {};
   if(arguments[0]){
@@ -50,6 +53,7 @@ function Peepub(){
   
 }
 Peepub.EPUB_DIR = __dirname + '/epubs/';
+Peepub.EPUB_CONTENT_DIR = 'OEBPS/'; // this is hard coded in templates/content.opf - use handlebars if this will ever change
 
 Peepub.prototype._handleDefaults = function(){
   
@@ -78,20 +82,27 @@ Peepub.prototype._epubPath = function(add){
   var dir = Peepub.EPUB_DIR + this.id + '/';
   if(add){ 
     this._epubPath();
-    dir += add + '/';
-  }
+    
+    // all additions go in the content dir
+    dir += Peepub.EPUB_CONTENT_DIR + add + '/';
+  } 
   if(!fs.existsSync(dir)){
     fs.mkdirSync(dir);
+    
+    // set up the whole structure
+    if(!add){
+      fs.mkdirSync(dir + 'META-INF/');
+      fs.writeFileSync(dir + 'META-INF/' + 'container.xml', fs.readFileSync(templatesDir + "container.xml", "utf8"));
+      fs.mkdirSync(dir + Peepub.EPUB_CONTENT_DIR);
+      fs.writeFileSync(dir + 'mimetype', 'application/epub+zip');
+    }
   } 
   return dir;
 }
 
-Peepub.prototype.clean = function(){
-  deleteFolderRecursive(this._epubPath());
-}
 
 
-Peepub.prototype._gatherAssets = function(callback){
+Peepub.prototype._fetchAssets = function(callback){
   // images
   var that      = this;
   var json      = this.getJson();
@@ -129,15 +140,6 @@ Peepub.prototype._getDom = function(str){
   var that = this;
   var uuid = guid();
   return cheerio.load("<div id='"+uuid+"'>" + str + '</div>');
-  
-  // jsdom.env(
-  //   ,
-  //   ["http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"],
-  //   function(errors, window) {
-  //     var $ = window.$;
-  //     callback($, $('#' + uuid));
-  //   }
-  // );
 }
 
 Peepub.prototype.getJson = function(){
@@ -152,8 +154,6 @@ Peepub.prototype.getJson = function(){
     }
   });
   
-
-  
   _.each(this.requiredFields, function(field){
     if(!that.json[field]) throw "Missing a required field: " + field;
   });
@@ -162,26 +162,46 @@ Peepub.prototype.getJson = function(){
   return this.json;
 }
 
-Peepub.prototype.contentOpf = function(callback){
+Peepub.prototype._contentOpf = function(options, callback){
   var that     = this;
   var template = fs.readFileSync(templatesDir + "content.opf", "utf8");
   var json     = this.getJson();
-  this._gatherAssets(function(assets){
-    json.items = assets;
-    
-    // these tags need IDs, so we need to make them unique
-    var needIs = ['creators', 'contributors', 'items'];
-    _.each(needIs, function(field){
-      if(that.json[field]){
-        for(var i in that.json[field]){
-          that.json[field][i]['i'] = parseInt(i)+1;
+  
+  if(typeof options === 'function'){
+    var callback = options;
+    options = null;
+  }
+  
+  var opts = _.extend({
+    fetchAssets : true
+  }, options);
+  
+  if(opts.fetchAssets){
+    this._fetchAssets(function(assets){
+      json.items = assets;
+
+      // these tags need IDs, so we need to make them unique
+      var needIs = ['creators', 'contributors', 'items'];
+      _.each(needIs, function(field){
+        if(that.json[field]){
+          for(var i in that.json[field]){
+            that.json[field][i]['i'] = parseInt(i)+1;
+          }
         }
-      }
+      });
+
+      var contentOpf = handlebars.compile(template)(json);
+      fs.writeFile(that._epubPath() + Peepub.EPUB_CONTENT_DIR + 'content.opf', contentOpf, function(err){
+        if(err) throw 'content.opf didnt save';
+        callback(contentOpf);
+      });
     });
     
-    callback(handlebars.compile(template)(json));
-  });
-  // return handlebars.compile(template)(json);
+  // this is used for testing
+  // synchronously returns basic contentOpf
+  } else {
+    return handlebars.compile(template)(json);
+  }
 }
 
 Peepub.prototype.getPage = function(i, callback){
@@ -199,6 +219,17 @@ Peepub.prototype.getPage = function(i, callback){
 
 Peepub.prototype.set = function(key, val){
   this.json[key] = val;
+}
+
+Peepub.prototype.clean = function(){
+  deleteFolderRecursive(this._epubPath());
+}
+
+Peepub.prototype.create = function(callback){
+  var that = this;
+  this._contentOpf(function(){
+    callback(that._epubPath());
+  });
 }
 
 
