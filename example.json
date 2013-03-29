@@ -22,5 +22,8 @@
   "pages" : [{
     "title" : "Page 1",
     "body" : "<p><img src='http://api.ning.com/files/T9LoqtopN-PL4w52C1thvJnPUOn6cGxwi25gaASf1qdU*upm*PUy8FThR74usF*lnvhIuDOmVT6v16uVPuzA1xMl9QtLosa*/Boys20reading20books.jpg'/></p>"
+  },{
+    "title" : "Page 2",
+    "body"  : "<div> <h1>The People's E-Book</h1> <h3>A free, beautifully-simple tool to make e-books better.</h3> </div> <div> <p><a href=\"http://thepeoplesebook.net\">The People's E-Book</a> seeks to be a lab, an incubator, an e-book creation platform for artists, authors, and alternative presses who want to try new things, publish new books, and push into new territories. The People's E-Book will handle e-books of all sizes and scope, but it will excel in areas that no one else has cared to consider—the very small, the quick and dirty, the simple and the experimental.</p> <p>The People's E-Book is a tool that doesn't account for what e-books <em>are</em>, but rather lets its users imagine what they <em>can be</em>: A short story or an epic poem, a blog post, a manifesto, a photobook, a book of moving photos, a book with a single word, a book with every word, sixteen-million colors, nine swimming pools, a video diary, an idea ...</p> <p>Make alternative e-books possible. Join us in building The People's E-Book, a remarkable DIY tool <strong>anyone can use for free</strong></p> </div>"
   }]
 }

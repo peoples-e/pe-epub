@@ -29,20 +29,12 @@
 		{{#subjects}}<dc:subject>{{.}}</dc:subject>{{/subjects}}
 	</metadata>	
 	<manifest>
-		<item id="cover-image" href="assets/cover.jpg" media-type="image/jpeg" properties="cover-image"/>		
 		<item id="toc" href="toc.html" media-type="application/xhtml+xml" properties="nav"/>
 		<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
 		<item id="css" href="styles/ebook.css" media-type="text/css"/>
 		<item id="js" href="scripts/ebook.js" media-type="text/javascript"/>
-		<item id="e001" href="e001.html" media-type="application/xhtml+xml" properties="scripted"/>
-		<item id="e002" href="e002.html" media-type="application/xhtml+xml" properties="scripted"/>
-		<item id="e003" href="e003.html" media-type="application/xhtml+xml" properties="scripted"/>
-		<item id="e004" href="e004.html" media-type="application/xhtml+xml" properties="scripted"/>
-		<item id="e005" href="e005.html" media-type="application/xhtml+xml" properties="scripted"/>
-		<item id="e006" href="e006.html" media-type="application/xhtml+xml" properties="scripted"/>
-		<item id="e007" href="e007.html" media-type="application/xhtml+xml" properties="scripted"/>
 		{{#items}}
-		<item id="asset_{{i}}" href="{{href}}" media-type="{{media-type}}" {{#properties}}properties="{{.}}"{{/properties}}/>{{/items}}
+		<item {{#id}}id="{{.}}"{{/id}}{{^id}}id="asset_{{i}}"{{/id}} href="{{href}}" media-type="{{media-type}}" {{#properties}}properties="{{.}}"{{/properties}}/>{{/items}}
 		
 		<item id="peoples_e_clip_webm" href="assets/peoples_e_clip.webm" media-type="video/webm"/>
 		<item id="peoples_e_clip_mp4" href="assets/peoples_e_clip.mp4" media-type="video/mp4"/>

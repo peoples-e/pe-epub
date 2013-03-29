@@ -121,19 +121,22 @@ Peepub.prototype._fetchAssets = function(callback){
       var filePath = that._epubPath('assets') + path.basename(img);
       res.pipe(fs.createWriteStream(filePath));
       res.on('end', function(){
-        that.assets.assets.push({
+        var asset = {
                    src : img,
           'media-type' : res.headers['content-type'],
                   href : 'assets/' + path.basename(filePath),
-                    id : guid(),
-            properties : (img === json.cover ? 'cover-image' : null)
-        });
+                   _id : guid()
+        };
+        if(img === json.cover){
+          asset.properties = 'cover-image';
+          asset.id = 'cover-image';
+        }
+        
+        that.assets.assets.push(asset);
         _check_all_good();
       });
     });
   });
-    
-  
 }
 
 Peepub.prototype._getDom = function(str){
@@ -142,25 +145,6 @@ Peepub.prototype._getDom = function(str){
   return cheerio.load("<div id='"+uuid+"'>" + str + '</div>');
 }
 
-Peepub.prototype.getJson = function(){
-  var that = this;
-  this._handleDefaults();
-  
-  // we want these to be arrays, but we'll be nice to people
-  var oneToMany = ['subject', 'publisher', 'creator', 'contributor'];
-  _.each(oneToMany, function _oneToMany(field){
-    if(that.json[field] && !that.json[field + 's']){
-      that.json[field + 's'] = [that.json[field]];
-    }
-  });
-  
-  _.each(this.requiredFields, function(field){
-    if(!that.json[field]) throw "Missing a required field: " + field;
-  });
-  
-  
-  return this.json;
-}
 
 Peepub.prototype._contentOpf = function(options, callback){
   var that     = this;
@@ -189,12 +173,18 @@ Peepub.prototype._contentOpf = function(options, callback){
           }
         }
       });
+      
+      that._createPages(function(){
+        
+        json.items = json.items.concat(that.json.pages); // add them to the manifest
+        
+        var contentOpf = handlebars.compile(template)(json);
+        fs.writeFile(that.contentOpfPath(), contentOpf, function(err){
+          if(err) throw 'content.opf didnt save';
+          callback(contentOpf);
+        });
+      })
 
-      var contentOpf = handlebars.compile(template)(json);
-      fs.writeFile(that._epubPath() + Peepub.EPUB_CONTENT_DIR + 'content.opf', contentOpf, function(err){
-        if(err) throw 'content.opf didnt save';
-        callback(contentOpf);
-      });
     });
     
   // this is used for testing
@@ -204,17 +194,64 @@ Peepub.prototype._contentOpf = function(options, callback){
   }
 }
 
-Peepub.prototype.getPage = function(i, callback){
+Peepub.prototype._getPage = function(i){
   var that = this;
-  var uuid = guid();
-  jsdom.env(
-    "<div id='"+uuid+"'>" + that.getJson().pages[i].body + '</div>',
-    ["http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"],
-    function(errors, window) {
-      var $ = window.$;
-      callback($('#' + uuid).html());
+  var template = fs.readFileSync(templatesDir + "page.html", "utf8");
+  var json     = this.getJson();
+  return handlebars.compile(template)(that.getJson().pages[i]);
+  
+}
+
+Peepub.prototype._createPage = function(i, callback){
+  var pad      = "00000";
+  var name     = 'e' + (pad+i.toString()).slice(-pad.length);
+  var fullpath = this._epubPath() + Peepub.EPUB_CONTENT_DIR + name + '.html';
+  var that     = this;
+  fs.writeFile(fullpath, this._getPage(i), function(err){
+    if(err) throw filename + ' didnt save';
+    
+    // prep page for manifest + addtn'l info
+    that.json.pages[i].path          = fullpath;
+    that.json.pages[i].id            = name;
+    that.json.pages[i].href          = name + '.html';
+    that.json.pages[i]['media-type'] = 'application/xhtml+xml';
+    that.json.pages[i]['properties'] = 'scripted';
+    
+    callback(fullpath);
+  });
+}
+
+Peepub.prototype._createPages = function(callback){
+  var that = this;
+  _.each(this.getJson().pages, function(page, i){
+    that._createPage(i, function(){
+      if(_.filter(that.json.pages, function(p){ return(!!p.id); }).length === that.json.pages.length){
+        callback();
+      }
+    });
+  })
+}
+
+
+// PUBLIC //
+
+Peepub.prototype.getJson = function(){
+  var that = this;
+  this._handleDefaults();
+  
+  // we want these to be arrays, but we'll be nice to people
+  var oneToMany = ['subject', 'publisher', 'creator', 'contributor'];
+  _.each(oneToMany, function _oneToMany(field){
+    if(that.json[field] && !that.json[field + 's']){
+      that.json[field + 's'] = [that.json[field]];
     }
-  );
+  });
+  
+  _.each(this.requiredFields, function(field){
+    if(!that.json[field]) throw "Missing a required field: " + field;
+  });
+  
+  return this.json;
 }
 
 Peepub.prototype.set = function(key, val){
@@ -230,6 +267,11 @@ Peepub.prototype.create = function(callback){
   this._contentOpf(function(){
     callback(that._epubPath());
   });
+}
+
+Peepub.prototype.contentOpfPath = function(){
+  if(!this.id) throw "This epub has not been created yet";
+  return this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'content.opf';
 }
 
 

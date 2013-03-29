@@ -1,6 +1,8 @@
-var Peepub = require('../Peepub.js');
-var _      = require('lodash');
-var fs     = require('fs');
+var Peepub  = require('../Peepub.js');
+var _       = require('lodash');
+var fs      = require('fs');
+var cheerio = require('cheerio');
+var path    = require('path');
 
 describe("Peepub Basics", function() {
   it("is a function", function() {
@@ -36,6 +38,27 @@ describe("Peepub Basics", function() {
     });
   });
   
+  it("cretaes a meta tag for the cover image and adds it to the manifest", function(){
+    
+    var contentOpf = '';
+    runs(function(){
+      pp._contentOpf(function(copf){
+        contentOpf = copf;
+      })
+    });
+
+    waitsFor(function(){
+      return contentOpf !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var $ = cheerio.load(contentOpf);
+      expect($("item[id='cover-image']").length).not.toBe(0);
+      expect($("meta[content='cover-image']").length).not.toBe(0);
+      pp.clean();
+    });
+  });
+  
   it("creates a proper file structure with necessaries", function(){
     var epubPath = '';
     runs(function(){
@@ -60,8 +83,9 @@ describe("Peepub Basics", function() {
   
 });
 
+
+
 describe("Content OPFs", function() {
-  
   
   var epubJson = require('../example.json');
   var minimumEpubJson = require('../minimum.json');

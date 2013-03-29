@@ -1,9 +1,11 @@
-var Peepub = require('../Peepub.js');
-var _      = require('lodash');
+var Peepub  = require('../Peepub.js');
+var _       = require('lodash');
+var cheerio = require('cheerio');
+var fs      = require('fs');
 
 
-xdescribe("Page Handling", function() {
-  var epubJson = require('../example.json');
+describe("Page Handling", function(){
+  var epubJson        = require('../example.json');
   var minimumEpubJson = require('../minimum.json');
   var pp,min_pp;
   
@@ -12,63 +14,59 @@ xdescribe("Page Handling", function() {
     min_pp = new Peepub(_.cloneDeep(minimumEpubJson));
   });
   
-  // it("allows pages to be strings or html", function(){
-  //     var pageBody = '';
-  //     runs(function(){
-  //       min_pp.getPage(0, function(page){
-  //         pageBody = page;
-  //       });
-  //     });
-  //     
-  //     waitsFor(function(){
-  //       return pageBody !== '';
-  //     });
-  //     
-  //     runs(function(){
-  //       expect(pageBody).toEqual(minimumEpubJson.pages[0].body);
-  //     })
-  //     
-  //   });
+  it("templates the titles page", function(){
+    for(var i in epubJson.pages){
+      var reg = new RegExp('<title>\s*'+epubJson.pages[i].title+'\s*</title>');
+      expect(pp._getPage(i).match(reg)).not.toBeNull();
+    }
+  });
   
-  // pp = new Peepub(_.cloneDeep(epubJson));
-  // pp._gatherAssets(function(ass){
-  //   console.log(ass);
-  // });
-});
+  it("creates pages", function(){
+    var epubPath = '';
+    
+    runs(function(){
+      pp.create(function(pth){
+        epubPath = pth;
+      })
+    });
 
-xdescribe("Async Page Handling", function(){
-  var epubJson = require('../example.json');
-  var minimumEpubJson = require('../minimum.json');
-  var pp,min_pp;
-  
-  beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson));
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(pp.getJson().pages[0].path)).not.toBeNull();
+      expect(fs.existsSync(pp.getJson().pages[0].path)).toBe(true);
+      pp.clean();
+    });
+    
   });
   
-  afterEach(function() {
-    // pp.clean();
-    // min_pp.clean();
-  });
-  
-  it("can make a contentOpf Asynch", function(){
-      var contentOpf = '';
-      runs(function(){
-        pp.contentOpf(function(copf){
-          contentOpf = copf;
-        })
+  it("adds pages to the manifest", function(){
+    var epubPath = '';
+    
+    runs(function(){
+      pp.create(function(pth){
+        epubPath = pth;
+      })
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
+      var $ = cheerio.load(contentopf);
+      _.each(pp.getJson().pages, function(page){
+        var itemPage = $('item#' + page.id);
+        expect(itemPage.length).toBe(1);
+        expect(itemPage.attr('href').match(page.id)).not.toBeNull();
       });
       
-      waitsFor(function(){
-        return contentOpf !== '';
-      }, "it to fetch the assets");
-      
-      runs(function(){
-        expect(contentOpf).not.toEqual('');
-        console.log(contentOpf);
-      })
-      
+      pp.clean();
     });
+  });
   
   
 });
