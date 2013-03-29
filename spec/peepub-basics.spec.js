@@ -1,7 +1,7 @@
 var Peepub = require('../Peepub.js');
 var _      = require('lodash');
 
-describe("Peepub Basics", function() {
+xdescribe("Peepub Basics", function() {
   
   it("is a function", function() {
     expect(typeof Peepub).toBe('function');

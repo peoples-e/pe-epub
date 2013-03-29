@@ -18,6 +18,22 @@ function guid() {
          s4() + '-' + s4() + s4() + s4();
 }
 
+function deleteFolderRecursive(path) {
+    var files = [];
+    if( fs.existsSync(path) ) {
+        files = fs.readdirSync(path);
+        files.forEach(function(file,index){
+            var curPath = path + "/" + file;
+            if(fs.statSync(curPath).isDirectory()) { // recurse
+                deleteFolderRecursive(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+    }
+};
+
 
 function Peepub(){
   this.json = {};
@@ -70,6 +86,11 @@ Peepub.prototype._epubPath = function(add){
   return dir;
 }
 
+Peepub.prototype.clean = function(){
+  deleteFolderRecursive(this._epubPath());
+}
+
+
 Peepub.prototype._gatherAssets = function(callback){
   // images
   var that      = this;
@@ -88,14 +109,17 @@ Peepub.prototype._gatherAssets = function(callback){
     http.get(img, function(res){
       var filePath = that._epubPath('assets') + path.basename(img);
       res.pipe(fs.createWriteStream(filePath));
-      that.assets.assets.push({
-        src : img,
-        'content-type' : res.headers['content-type'],
-        file : filePath
+      res.on('end', function(){
+        that.assets.assets.push({
+                   src : img,
+          'media-type' : res.headers['content-type'],
+                  href : 'assets/' + path.basename(filePath),
+                    id : guid(),
+            properties : (img === json.cover ? 'cover-image' : null)
+        });
+        _check_all_good();
       });
-      _check_all_good();
     });
-    
   });
     
   
@@ -128,15 +152,7 @@ Peepub.prototype.getJson = function(){
     }
   });
   
-  // these tags need IDs, so we need to make them unique
-  var needIs = ['creators', 'contributors'];
-  _.each(needIs, function(field){
-    if(that.json[field]){
-      for(var i in that.json[field]){
-        that.json[field][i]['i'] = parseInt(i)+1;
-      }
-    }
-  });
+
   
   _.each(this.requiredFields, function(field){
     if(!that.json[field]) throw "Missing a required field: " + field;
@@ -146,12 +162,26 @@ Peepub.prototype.getJson = function(){
   return this.json;
 }
 
-Peepub.prototype.contentOpf = function(){
+Peepub.prototype.contentOpf = function(callback){
+  var that     = this;
   var template = fs.readFileSync(templatesDir + "content.opf", "utf8");
-  // this._gatherAssets(function(imgs){
-  //   console.log(imgs);
-  // });
-  return handlebars.compile(template)(this.getJson());
+  var json     = this.getJson();
+  this._gatherAssets(function(assets){
+    json.items = assets;
+    
+    // these tags need IDs, so we need to make them unique
+    var needIs = ['creators', 'contributors', 'items'];
+    _.each(needIs, function(field){
+      if(that.json[field]){
+        for(var i in that.json[field]){
+          that.json[field][i]['i'] = parseInt(i)+1;
+        }
+      }
+    });
+    
+    callback(handlebars.compile(template)(json));
+  });
+  // return handlebars.compile(template)(json);
 }
 
 Peepub.prototype.getPage = function(i, callback){
@@ -170,6 +200,7 @@ Peepub.prototype.getPage = function(i, callback){
 Peepub.prototype.set = function(key, val){
   this.json[key] = val;
 }
+
 
 
 module.exports = Peepub;

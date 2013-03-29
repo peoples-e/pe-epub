@@ -2,7 +2,7 @@ var Peepub = require('../Peepub.js');
 var _      = require('lodash');
 
 
-describe("Page Handling", function() {
+xdescribe("Page Handling", function() {
   var epubJson = require('../example.json');
   var minimumEpubJson = require('../minimum.json');
   var pp,min_pp;
@@ -30,8 +30,45 @@ describe("Page Handling", function() {
   //     
   //   });
   
-  pp = new Peepub(_.cloneDeep(epubJson));
-  pp._gatherAssets(function(ass){
-    console.log(ass);
+  // pp = new Peepub(_.cloneDeep(epubJson));
+  // pp._gatherAssets(function(ass){
+  //   console.log(ass);
+  // });
+});
+
+describe("Async Page Handling", function(){
+  var epubJson = require('../example.json');
+  var minimumEpubJson = require('../minimum.json');
+  var pp,min_pp;
+  
+  beforeEach(function(){
+    pp = new Peepub(_.cloneDeep(epubJson));
+    min_pp = new Peepub(_.cloneDeep(minimumEpubJson));
   });
+  
+  afterEach(function() {
+    pp.clean();
+    min_pp.clean();
+  });
+  
+  it("can make a contentOpf Asynch", function(){
+      var contentOpf = '';
+      runs(function(){
+        pp.contentOpf(function(copf){
+          contentOpf = copf;
+        })
+      });
+      
+      waitsFor(function(){
+        return contentOpf !== '';
+      }, "it to fetch the assets");
+      
+      runs(function(){
+        expect(contentOpf).not.toEqual('');
+        console.log(contentOpf);
+      })
+      
+    });
+  
+  
 });

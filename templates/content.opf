@@ -41,13 +41,9 @@
 		<item id="e005" href="e005.html" media-type="application/xhtml+xml" properties="scripted"/>
 		<item id="e006" href="e006.html" media-type="application/xhtml+xml" properties="scripted"/>
 		<item id="e007" href="e007.html" media-type="application/xhtml+xml" properties="scripted"/>
-		<item id="peoples_e_kickstarterimage_2" href="assets/peoples_e_kickstarterimage_2.png" media-type="image/png"/>
-		<item id="peoples_e_kickstarterimage_3" href="assets/peoples_e_kickstarterimage_3.png" media-type="image/png"/>
-		<item id="peoples_e_kickstarterimage_4" href="assets/peoples_e_kickstarterimage_4.png" media-type="image/png"/>
-		<item id="peoples_e_kickstarterimage_5" href="assets/peoples_e_kickstarterimage_5.jpg" media-type="image/jpeg"/>
-		<item id="peoples_e_kickstarterimage_6" href="assets/peoples_e_kickstarterimage_6.jpg" media-type="image/jpeg"/>
-		<item id="peoples_e_poster" href="assets/peoples_e_poster.jpg" media-type="image/jpeg"/>
-		<item id="jug" href="assets/jug.gif" media-type="image/gif"/>
+		{{#items}}
+		<item id="asset_{{i}}" href="{{href}}" media-type="{{media-type}}" {{#properties}}properties="{{.}}"{{/properties}}/>{{/items}}
+		
 		<item id="peoples_e_clip_webm" href="assets/peoples_e_clip.webm" media-type="video/webm"/>
 		<item id="peoples_e_clip_mp4" href="assets/peoples_e_clip.mp4" media-type="video/mp4"/>
 		<item id="peoples_e_clip_mp3" href="assets/peoples_e_clip.mp3" media-type="audio/mp3"/>
