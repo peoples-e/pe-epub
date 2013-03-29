@@ -45,6 +45,16 @@ function Peepub(){
   }
   this.id = guid();
   this.requiredFields = ['title', 'cover']; // we'll take care of publish date and uuid
+  
+  this.json.css = this.json.css || [];
+  if(this.json.css && typeof this.json.css === 'string') {
+    this.json.css = [this.json.css];
+  }
+  this.json.js = this.json.js || [];
+  if(this.json.js && typeof this.json.js === 'string') {
+    this.json.js = [this.json.js];
+  }
+  
   this.assets = {
     css     : [],
     js      : [],
@@ -103,7 +113,7 @@ Peepub.prototype._epubPath = function(add){
 
 
 Peepub.prototype._fetchAssets = function(callback){
-  // images
+  this._fetchAssetsCalled = true;
   var that      = this;
   var json      = this.getJson();
   var all_pages = _.map(json.pages, function(page){ return page.body }).join('');
@@ -111,30 +121,62 @@ Peepub.prototype._fetchAssets = function(callback){
   var images    = ([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })); 
   
   function _check_all_good(){
-    if(that.assets.assets.length === images.length){
-      callback(that.assets.assets);
+    if( that.assets.assets.length === images.length && 
+        that.assets.css.length === json.css.length &&
+        that.assets.js.length === json.js.length
+      ){
+      callback(that.assets.assets.concat(that.assets.css).concat(that.assets.js));
     }
   }
   
   _.each(images, function(img){
-    http.get(img, function(res){
-      var filePath = that._epubPath('assets') + path.basename(img);
-      res.pipe(fs.createWriteStream(filePath));
-      res.on('end', function(){
-        var asset = {
-                   src : img,
-          'media-type' : res.headers['content-type'],
-                  href : 'assets/' + path.basename(filePath),
-                   _id : guid()
-        };
-        if(img === json.cover){
-          asset.properties = 'cover-image';
-          asset.id = 'cover-image';
-        }
-        
-        that.assets.assets.push(asset);
-        _check_all_good();
-      });
+    var filePath = that._epubPath('assets') + path.basename(img);
+    that._createFile(filePath, img, function(err, res){
+      var asset = {
+                 src : img,
+        'media-type' : res.headers['content-type'],
+                href : 'assets/' + path.basename(filePath),
+                 _id : guid()
+      };
+      if(img === json.cover){
+        asset.properties = 'cover-image';
+        asset.id = 'cover-image';
+      }
+      
+      that.assets.assets.push(asset);
+      _check_all_good();
+    });
+  });
+  
+  _.each(json.css, function(css, i){
+    var filePath = that._epubPath('styles') + 'css_' + i + '.css';
+    that._createFile(filePath, css, function(err, res){
+      var asset = {
+                 src : css,
+        'media-type' : 'text/css',
+                href : 'styles/' + path.basename(filePath),
+                 _id : guid(),
+                 id  : 'css_' + i
+      };
+      
+      that.assets.css.push(asset);
+      _check_all_good();
+    });
+  });
+  
+  _.each(json.js, function(js, i){
+    var filePath = that._epubPath('scripts') + 'js_' + i + '.js';
+    that._createFile(filePath, js, function(err, res){
+      var asset = {
+                 src : js,
+        'media-type' : 'text/javascript',
+                href : 'scripts/' + path.basename(filePath),
+                 _id : guid(),
+                 id  : 'js_' + i
+      };
+      
+      that.assets.js.push(asset);
+      _check_all_good();
     });
   });
 }
@@ -177,6 +219,7 @@ Peepub.prototype._contentOpf = function(options, callback){
       that._createPages(function(){
         
         json.items = json.items.concat(that.json.pages); // add them to the manifest
+        json.itemrefs = that.json.pages;
         
         var contentOpf = handlebars.compile(template)(json);
         fs.writeFile(that.contentOpfPath(), contentOpf, function(err){
@@ -197,9 +240,31 @@ Peepub.prototype._contentOpf = function(options, callback){
 Peepub.prototype._getPage = function(i){
   var that = this;
   var template = fs.readFileSync(templatesDir + "page.html", "utf8");
-  var json     = this.getJson();
-  return handlebars.compile(template)(that.getJson().pages[i]);
+  var json     = this.getJson().pages[i];
   
+  // add links/script tags
+  json.css = this.assets.css;
+  json.js = this.assets.js;
+  
+  return handlebars.compile(template)(json);
+  
+}
+
+// will pull it from the internet (or not) and write it
+Peepub.prototype._createFile = function(dest, source, callback){
+  if((/^https?:\/\//).test(source)){
+    http.get(source, function(res){
+      res.pipe(fs.createWriteStream(dest));
+      res.on('end', function(err){
+        callback(err, res);
+      });
+    });
+    
+  } else {
+    fs.writeFile(dest, source, function(err){
+      callback(err);
+    });
+  }
 }
 
 Peepub.prototype._createPage = function(i, callback){
@@ -207,7 +272,7 @@ Peepub.prototype._createPage = function(i, callback){
   var name     = 'e' + (pad+i.toString()).slice(-pad.length);
   var fullpath = this._epubPath() + Peepub.EPUB_CONTENT_DIR + name + '.html';
   var that     = this;
-  fs.writeFile(fullpath, this._getPage(i), function(err){
+  this._createFile(fullpath, this._getPage(i), function(err){
     if(err) throw filename + ' didnt save';
     
     // prep page for manifest + addtn'l info
@@ -222,6 +287,8 @@ Peepub.prototype._createPage = function(i, callback){
 }
 
 Peepub.prototype._createPages = function(callback){
+  if(!this._fetchAssetsCalled) throw "_fetchAssets needs to be called before _createPages";
+  
   var that = this;
   _.each(this.getJson().pages, function(page, i){
     that._createPage(i, function(){

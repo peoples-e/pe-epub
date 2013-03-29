@@ -68,5 +68,83 @@ describe("Page Handling", function(){
     });
   });
   
+  it("adds pages to the spine", function(){
+    var epubPath = '';
+    
+    runs(function(){
+      pp.create(function(pth){
+        epubPath = pth;
+      })
+    });
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
+      var $ = cheerio.load(contentopf);
+      _.each(pp.getJson().pages, function(page){
+        var itemPage = $('spine itemref[idref='+page.id+']');
+        expect(itemPage.length).toBe(1);
+      });
+      
+      pp.clean();
+    });
+  });
+  
+  it("puts a css/link tag in every page", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.create(function(pth){
+        epubPath = pth;
+      })
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
+      var $          = cheerio.load(contentopf);
+      var firstPage  = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + pp.json.pages[0].href, 'utf8');
+      var $page      = cheerio.load(firstPage);
+      
+      _.each(pp.assets.css, function(css){
+        var itemCss = $('manifest item[id='+css.id+']');
+        expect($page("link[href='"+$(itemCss).attr('href')+"']").length).toBe(1);
+      });
+      
+      pp.clean();
+    });
+  });
+  
+  it("puts a js/script tag in every page", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.create(function(pth){
+        epubPath = pth;
+      })
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
+      var $          = cheerio.load(contentopf);
+      var firstPage  = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + pp.json.pages[0].href, 'utf8');
+      var $page      = cheerio.load(firstPage);
+      
+      _.each(pp.assets.js, function(js){
+        var itemJs = $('manifest item[id='+js.id+']');
+        expect($page("script[src='"+$(itemJs).attr('href')+"']").length).toBe(1);
+      });
+      
+      pp.clean();
+    });
+  });
+  
   
 });

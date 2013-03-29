@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" dir="ltr" unique-identifier="bookid">
 	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-		<!-- REQUIRED -->
 		<meta property="dcterms:modified">2013-03-20T12:00:00Z</meta>
 		<meta name="cover" content="cover-image" />
 		<dc:language>{{language}}</dc:language>
 		<dc:title id="title01">{{title}}</dc:title>		
+		{{#subtitle}}<meta refines="#title01" property="title-type">{{.}}</meta>{{/subtitle}}
 		{{#isbn}}<dc:identifier id="bookid">urn:isbn:{{.}}</dc:identifier>{{/isbn}}
 		{{#uuid}}<dc:identifier id="pubid">urn:uuid:{{.}}</dc:identifier>{{/uuid}}
 		{{#url}}<dc:identifier id="pubid">url:{{.}}</dc:identifier>{{/url}}
 
-		<!-- SECONDARY -->				
-		<dc:title id="title02">An EPUB 3 Sample Document</dc:title>	
-		{{#subtitle}}<meta refines="#title02" property="title-type">{{.}}</meta>{{/subtitle}}
-			
 		{{#creators}}<dc:creator id="creator{{i}}">{{name}}</dc:creator>
 		<meta refines="#creator{{i}}" property="role" scheme="marc:relators">{{role}}</meta>
 		<meta refines="#creator{{i}}" property="file-as">{{file-as}}</meta>{{/creators}}
@@ -27,27 +23,19 @@
     	{{#publishers}}<dc:publisher>{{.}}</dc:publisher>{{/publishers}}
     	<dc:rights>{{rights}}</dc:rights>
 		{{#subjects}}<dc:subject>{{.}}</dc:subject>{{/subjects}}
+		
+		<!-- SECONDARY -->				
+		<dc:title id="title02">An EPUB 3 Sample Document</dc:title>	
+		
 	</metadata>	
 	<manifest>
 		<item id="toc" href="toc.html" media-type="application/xhtml+xml" properties="nav"/>
 		<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-		<item id="css" href="styles/ebook.css" media-type="text/css"/>
-		<item id="js" href="scripts/ebook.js" media-type="text/javascript"/>
 		{{#items}}
 		<item {{#id}}id="{{.}}"{{/id}}{{^id}}id="asset_{{i}}"{{/id}} href="{{href}}" media-type="{{media-type}}" {{#properties}}properties="{{.}}"{{/properties}}/>{{/items}}
-		
-		<item id="peoples_e_clip_webm" href="assets/peoples_e_clip.webm" media-type="video/webm"/>
-		<item id="peoples_e_clip_mp4" href="assets/peoples_e_clip.mp4" media-type="video/mp4"/>
-		<item id="peoples_e_clip_mp3" href="assets/peoples_e_clip.mp3" media-type="audio/mp3"/>
 	</manifest>
 	<spine toc="ncx">
-		<itemref idref="toc"/>
-		<itemref idref="e001"/>
-		<itemref idref="e002"/>
-		<itemref idref="e003"/>
-		<itemref idref="e004"/>
-		<itemref idref="e005"/>
-		<itemref idref="e006"/>
-		<itemref idref="e007"/>
+		{{#itemrefs}}<itemref idref="{{id}}"/>
+		{{/itemrefs}}
 	</spine>	
 </package>

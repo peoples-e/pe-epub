@@ -5,6 +5,8 @@
   "language"        : "en-US",
   "date"            : "2013-03-23",
   "subtitle"        : "We read ebooks for breakfast",
+  "css"             : ["body { background-color: #fff }", "http://thepeoplesebook.net/style/launch.css"],
+  "js"              : "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
   "creator"         : {
     "name"    : "Greg Albers",
     "role"    : "aut",
