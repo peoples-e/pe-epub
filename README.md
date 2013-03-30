@@ -15,7 +15,6 @@ Here's the bare minimum you (will) need to make an epub
 	}
 
 ### TODO
-* Do TOC
 * Zip everything
 * validate
 

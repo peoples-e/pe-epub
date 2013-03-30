@@ -29,8 +29,6 @@
 		
 	</metadata>	
 	<manifest>
-		<item id="toc" href="toc.html" media-type="application/xhtml+xml" properties="nav"/>
-		<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
 		{{#items}}
 		<item {{#id}}id="{{.}}"{{/id}}{{^id}}id="asset_{{i}}"{{/id}} href="{{href}}" media-type="{{media-type}}" {{#properties}}properties="{{.}}"{{/properties}}/>{{/items}}
 	</manifest>

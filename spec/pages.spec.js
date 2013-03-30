@@ -1,13 +1,13 @@
-var Peepub  = require('../Peepub.js');
-var _       = require('lodash');
-var cheerio = require('cheerio');
-var fs      = require('fs');
+var Peepub          = require('../Peepub.js');
+var _               = require('lodash');
+var cheerio         = require('cheerio');
+var fs              = require('fs');
+var epubJson        = require('../example.json');
+var minimumEpubJson = require('../minimum.json');
+var pp,min_pp;
 
 
 describe("Page Handling", function(){
-  var epubJson        = require('../example.json');
-  var minimumEpubJson = require('../minimum.json');
-  var pp,min_pp;
   
   beforeEach(function(){
     pp = new Peepub(_.cloneDeep(epubJson));

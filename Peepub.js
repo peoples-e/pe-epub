@@ -218,15 +218,18 @@ Peepub.prototype._contentOpf = function(options, callback){
       
       that._createPages(function(){
         
-        json.items = json.items.concat(that.json.pages); // add them to the manifest
-        json.itemrefs = that.json.pages;
+        json.items = json.items.concat(that.json.pages);  // add pages to the manifest
+        json.itemrefs = that.json.pages;                  // add pages to the spine
         
-        var contentOpf = handlebars.compile(template)(json);
-        fs.writeFile(that.contentOpfPath(), contentOpf, function(err){
-          if(err) throw 'content.opf didnt save';
-          callback(contentOpf);
+        that._createToc(function(){
+          var contentOpf = handlebars.compile(template)(json);
+          fs.writeFile(that.contentOpfPath(), contentOpf, function(err){
+            if(err) throw 'content.opf didnt save';
+            callback(contentOpf);
+          });
         });
-      })
+        
+      });
 
     });
     
@@ -235,6 +238,48 @@ Peepub.prototype._contentOpf = function(options, callback){
   } else {
     return handlebars.compile(template)(json);
   }
+}
+
+Peepub.prototype._createToc = function(callback){
+  var that           = this;
+  var json           = this.getJson();
+  var finished_files = 0;
+  
+  json.tocPages = this.getTocPages();
+  for(var i in json.tocPages){
+    json.tocPages[i]['i'] = parseInt(i)+1;
+  }
+  json.items.push({
+      id : 'toc',
+      href : 'toc.html',
+      'media-type' : 'application/xhtml+xml',
+      properties : 'nav'
+    });
+  json.items.push({
+      id : 'ncx',
+      href : 'toc.ncx',
+      'media-type' : 'application/x-dtbncx+xml'
+    });
+  
+  
+  var tocHtml = handlebars.compile(fs.readFileSync(templatesDir + "toc.html", "utf8"))(json);
+  fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.html', tocHtml, function(err){
+    if(err) throw 'toc.html didnt save';
+    finished_files++;
+    if(finished_files === 2){
+      callback();
+    }
+  });
+  
+  var tocNcx = handlebars.compile(fs.readFileSync(templatesDir + "toc.ncx", "utf8"))(json);
+  fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', tocNcx, function(err){
+    if(err) throw 'toc.ncx didnt save';
+    finished_files++;
+    if(finished_files === 2){
+      callback();
+    }
+  });
+  
 }
 
 Peepub.prototype._getPage = function(i){
@@ -339,6 +384,10 @@ Peepub.prototype.create = function(callback){
 Peepub.prototype.contentOpfPath = function(){
   if(!this.id) throw "This epub has not been created yet";
   return this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'content.opf';
+}
+
+Peepub.prototype.getTocPages = function(){
+  return _.filter(this.getJson().pages, function(page){ return page.toc; });
 }
 
 
