@@ -4,6 +4,7 @@ var fs         = require("fs");
 var cheerio    = require('cheerio');
 var http       = require('http');
 var path       = require('path');
+var async      = require("async");
 
 var templatesDir = __dirname + '/templates/';
 
@@ -36,12 +37,66 @@ function deleteFolderRecursive(path) {
 };
 
 /**
+ * Mapping function on all files in a folder and it's subfolders
+ * @param dir {string} Source directory
+ * @param action {Function} Mapping function in the form of (path, stats, callback), where callback is Function(result)
+ * @param callback {Function} Callback fired after all files have been processed with (err, aggregatedResults)
+ */
+function mapAllFiles(dir, action, callback, concurrency) {
+    var output = [];
+    
+    // create a queue object with concurrency 2
+    var q = async.queue(function (filename, next) {
+        fs.stat(filename, function (err, stats) {
+            if (err) return next(err);
+            
+            if (stats.isDirectory()) {
+                readFolder(filename, next);
+            }
+            else {
+                action(filename, stats, function (res) {
+                    if (res) {
+                        output.push(res);
+                    }
+                    
+                    next();
+                });                
+            }
+        });
+    }, concurrency || 5);
+    
+    // read folder and push stuff to queue
+    function readFolder (dir, next) {
+        fs.readdir(dir, function (err, files) {
+            if (err) return next(err);
+            
+            q.push(files.map(function (file) {
+                return path.join(dir, file);
+            }));
+            
+            next();
+        });
+    };
+    
+    readFolder(dir, function () {
+        // on drain we're done
+        q.drain = function (err) {
+            callback(err, output);
+        };
+    });
+};
+
+
+/**
  *
  */
 function Peepub(){
   this.json = {};
   if(arguments[0]){
     this.json = arguments[0];
+  }
+  if(arguments[1]){
+    this.debug = arguments[1];
   }
   this.id = guid();
   this.requiredFields = ['title', 'cover']; // we'll take care of publish date and uuid
@@ -344,6 +399,37 @@ Peepub.prototype._createPages = function(callback){
   })
 }
 
+Peepub.prototype._zip = function(callback){
+  var zip  = new require('node-zip')();
+  var that = this;
+  var dir  = this._epubPath().slice(0,-1);
+  
+  // map all files in the approot thru this function
+  mapAllFiles(dir, function (path, stats, callback) {
+      // prepare for the .addFiles function
+      callback({ 
+          name: path.replace(dir, "").substr(1), 
+          path: path 
+      });
+  }, function (err, data) {
+      // if (err) return callback(err);
+
+      _.each(data, function(fileObj){
+        zip.file(fileObj.name, fs.readFileSync(fileObj.path, 'binary'), { binary : true });
+      });
+      
+      
+      var epubPath = Peepub.EPUB_DIR + '/' + that.id + '.epub';
+      fs.writeFile(epubPath, zip.generate({base64:false,compression:'DEFLATE'}), 'binary', function(err){
+        that.epubFile = epubPath;
+        callback(null, epubPath);
+      });
+      
+  });
+  
+  
+}
+
 
 // PUBLIC //
 
@@ -372,12 +458,18 @@ Peepub.prototype.set = function(key, val){
 
 Peepub.prototype.clean = function(){
   deleteFolderRecursive(this._epubPath());
+  if(fs.existsSync(this.epubFile)){
+    fs.unlinkSync(this.epubFile);
+  }
 }
 
 Peepub.prototype.create = function(callback){
   var that = this;
+  
   this._contentOpf(function(){
-    callback(that._epubPath());
+    that._zip(function(err, epubPath){
+      callback(err, epubPath);
+    });
   });
 }
 

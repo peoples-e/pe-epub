@@ -62,9 +62,9 @@ describe("Peepub Basics", function() {
   it("creates a proper file structure with necessaries", function(){
     var epubPath = '';
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
@@ -144,9 +144,9 @@ describe("Content OPFs", function() {
   it("will make css files for you", function(){
     var epubPath = '';
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
@@ -162,9 +162,9 @@ describe("Content OPFs", function() {
   it("puts the css in the manifest", function(){
     var epubPath = '';
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
@@ -189,9 +189,9 @@ describe("Content OPFs", function() {
   it("puts the js in the manifest", function(){
     var epubPath = '';
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){

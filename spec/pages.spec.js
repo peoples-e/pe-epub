@@ -2,6 +2,7 @@ var Peepub          = require('../Peepub.js');
 var _               = require('lodash');
 var cheerio         = require('cheerio');
 var fs              = require('fs');
+var path            = require('path');
 var epubJson        = require('../example.json');
 var minimumEpubJson = require('../minimum.json');
 var pp,min_pp;
@@ -25,9 +26,9 @@ describe("Page Handling", function(){
     var epubPath = '';
     
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
@@ -46,9 +47,9 @@ describe("Page Handling", function(){
     var epubPath = '';
     
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
@@ -72,9 +73,9 @@ describe("Page Handling", function(){
     var epubPath = '';
     
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
     waitsFor(function(){
       return epubPath !== '';
@@ -95,9 +96,9 @@ describe("Page Handling", function(){
   it("puts a css/link tag in every page", function(){
     var epubPath = '';
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
@@ -122,9 +123,9 @@ describe("Page Handling", function(){
   it("puts a js/script tag in every page", function(){
     var epubPath = '';
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){

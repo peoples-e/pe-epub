@@ -4,6 +4,7 @@ var cheerio         = require('cheerio');
 var fs              = require('fs');
 var epubJson        = require('../example.json');
 var minimumEpubJson = require('../minimum.json');
+var path            = require('path');
 var pp,min_pp;
 
 
@@ -16,9 +17,9 @@ describe("TOC", function(){
     var epubPath = '';
     
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
@@ -36,9 +37,9 @@ describe("TOC", function(){
     var epubPath = '';
     
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
   
     waitsFor(function(){
@@ -59,9 +60,9 @@ describe("TOC", function(){
     var epubPath = '';
     
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
   
     waitsFor(function(){
@@ -83,9 +84,9 @@ describe("TOC", function(){
     var epubPath = '';
     
     runs(function(){
-      pp.create(function(pth){
-        epubPath = pth;
-      })
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
     });
 
     waitsFor(function(){
