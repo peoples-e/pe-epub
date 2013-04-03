@@ -20,6 +20,11 @@ function guid() {
          s4() + '-' + s4() + s4() + s4();
 }
 
+// http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
 function deleteFolderRecursive(path) {
     var files = [];
     if( fs.existsSync(path) ) {
@@ -372,6 +377,16 @@ Peepub.prototype._createPage = function(i, callback){
   var name     = 'e' + (pad+i.toString()).slice(-pad.length);
   var fullpath = this._epubPath() + Peepub.EPUB_CONTENT_DIR + name + '.html';
   var that     = this;
+  
+  var $pageBody = cheerio.load(that.json.pages[i].body);
+  // replace external assets with local
+  _.each(that.assets.assets, function(ass){
+    if($pageBody("img[src='"+ass.src+"']").length > 0){
+      $pageBody("img[src='"+ass.src+"']").attr('src', ass.href);
+      that.json.pages[i].body = $pageBody.html();
+    }
+  });
+  
   this._createFile(fullpath, this._getPage(i), function(err){
     if(err) throw filename + ' didnt save';
     
@@ -381,6 +396,7 @@ Peepub.prototype._createPage = function(i, callback){
     that.json.pages[i].href          = name + '.html';
     that.json.pages[i]['media-type'] = 'application/xhtml+xml';
     that.json.pages[i]['properties'] = 'scripted';
+    
     
     callback(fullpath);
   });

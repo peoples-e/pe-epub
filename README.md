@@ -1,9 +1,9 @@
 # pe-epub
 
-"peepub" makes epubs better.  Our goal is to make it as easy as possible to output a valid epub.
+"peepub" makes epubs better.  Our goal is to make it as easy as possible to output a valid epub.  Peepub is for Node.js
 
 ## JSON > EPUB
-Here's the bare minimum you (will) need to make an epub
+Here's the bare minimum you need to make an epub
 
 	{
 		"title" : "The Peoples E-Book",
@@ -13,10 +13,19 @@ Here's the bare minimum you (will) need to make an epub
 			"body" : "Making ebooks better."
 		}]
 	}
+	
+## Usage
+	var Peepub   = require('pe-epub');
+	var epubJson = require('your-epub.json'); // see example.json for the specs
+	var myPeepub = new Peepub(minJson);
+	
+	myPeepub.create(function(err, epubPath){
+		console.log(epubPath); // your epub file!
+	});
 
 ### TODO
-* Zip everything
 * validate
+* handle audio and video tags
 
 ### Testing
 	npm install -g jasmine-node
