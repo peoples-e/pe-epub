@@ -109,7 +109,7 @@ describe("Assets in the EPUB", function(){
           break;
         }
       }
-      pp.clean();
+      // pp.clean();
     });
   });
 });

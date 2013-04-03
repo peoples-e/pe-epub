@@ -7,8 +7,8 @@
 		<dc:title id="title01">{{title}}</dc:title>		
 		{{#subtitle}}<meta refines="#title01" property="title-type">{{.}}</meta>{{/subtitle}}
 		{{#isbn}}<dc:identifier id="bookid">urn:isbn:{{.}}</dc:identifier>{{/isbn}}
-		{{#uuid}}<dc:identifier id="pubid">urn:uuid:{{.}}</dc:identifier>{{/uuid}}
-		{{#url}}<dc:identifier id="pubid">url:{{.}}</dc:identifier>{{/url}}
+		{{#uuid}}<dc:identifier id="bookid">urn:uuid:{{.}}</dc:identifier>{{/uuid}}
+		{{#url}}<dc:identifier id="bookid">url:{{.}}</dc:identifier>{{/url}}
 
 		{{#creators}}<dc:creator id="creator{{i}}">{{name}}</dc:creator>
 		<meta refines="#creator{{i}}" property="role" scheme="marc:relators">{{role}}</meta>

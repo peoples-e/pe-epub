@@ -320,7 +320,7 @@ Peepub.prototype._createToc = function(callback){
       href : 'toc.ncx',
       'media-type' : 'application/x-dtbncx+xml'
     });
-  
+  json.css = this.assets.css;
   
   var tocHtml = handlebars.compile(fs.readFileSync(templatesDir + "toc.html", "utf8"))(json);
   fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.html', tocHtml, function(err){
@@ -383,7 +383,8 @@ Peepub.prototype._createPage = function(i, callback){
   _.each(that.assets.assets, function(ass){
     if($pageBody("img[src='"+ass.src+"']").length > 0){
       $pageBody("img[src='"+ass.src+"']").attr('src', ass.href);
-      that.json.pages[i].body = $pageBody.html();
+      var regex = new RegExp('(<img[^>]+>)', 'g')
+      that.json.pages[i].body = $pageBody.html().replace(regex, '$1</img>');
     }
   });
   
@@ -416,7 +417,7 @@ Peepub.prototype._createPages = function(callback){
 }
 
 Peepub.prototype._zip = function(callback){
-  var zip  = new require('node-zip')();
+  var zip = new require('node-zip')();
   var that = this;
   var dir  = this._epubPath().slice(0,-1);
   
@@ -429,14 +430,24 @@ Peepub.prototype._zip = function(callback){
       });
   }, function (err, data) {
       // if (err) return callback(err);
-
-      _.each(data, function(fileObj){
+      
+      var epubPath = Peepub.EPUB_DIR + '/' + that.id + '.epub';
+      
+      // mimetype must be first
+      var filteredData = _.filter(data, function(fileObj){
+        if(fileObj.name === 'mimetype'){
+          zip.file(fileObj.name, fs.readFileSync(fileObj.path, 'binary'), { binary : true });
+          return false;
+        }
+        return true;
+      });
+      
+      _.each(filteredData, function(fileObj){
         zip.file(fileObj.name, fs.readFileSync(fileObj.path, 'binary'), { binary : true });
       });
       
       
-      var epubPath = Peepub.EPUB_DIR + '/' + that.id + '.epub';
-      fs.writeFile(epubPath, zip.generate({base64:false,compression:'DEFLATE'}), 'binary', function(err){
+      fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
         that.epubFile = epubPath;
         callback(null, epubPath);
       });
