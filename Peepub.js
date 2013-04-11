@@ -476,6 +476,18 @@ Peepub.prototype.getJson = function(){
     if(!that.json[field]) throw "Missing a required field: " + field;
   });
   
+  // modified - 2013-03-20T12:00:00Z
+  var utc = new Date((new Date).toUTCString());
+  function _pad(a){
+    return a.toString().length === 1 ? '0' + a.toString() : a;
+  }
+  this.json.modified =  utc.getFullYear() + '-' + 
+                        _pad(utc.getMonth() + 1) + '-' +
+                        _pad(utc.getDate()) + 'T' + 
+                        _pad(utc.getHours() + 1) + ':' + 
+                        _pad(utc.getMinutes() + 1) + ':' + 
+                        _pad(utc.getSeconds() + 1) + 'Z';
+  
   return this.json;
 }
 

@@ -25,7 +25,7 @@ describe("Outputting an EPUB", function(){
     }, "it to assemble everything");
 
     runs(function(){
-      console.log(epubFile);
+      // console.log(epubFile);
       expect(fs.existsSync(epubFile)).toBe(true);
       pp.clean();
     });

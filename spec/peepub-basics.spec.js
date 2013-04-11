@@ -141,6 +141,16 @@ describe("Content OPFs", function() {
     expect(opf.match(epubJson.subjects[1])).toBeNull();
   });
   
-
+  it("handles the modified date correctly", function(){
+    var opf          = pp._contentOpf({ fetchAssets : false });
+    var $            = cheerio.load(opf, { xmlMode : true });
+    var modified     = $('meta[property*=modified]').text();
+    var modifiedDate = new Date(modified);
+    var now          = new Date();
+    
+    expect(modifiedDate.getMonth()).toEqual(now.getMonth());
+    expect(modifiedDate.getYear()).toEqual(now.getYear());
+  });
+  
 
 });

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" dir="ltr" unique-identifier="bookid">
 	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-		<meta property="dcterms:modified">2013-03-20T12:00:00Z</meta>
+		<meta property="dcterms:modified">{{modified}}</meta>
 		<meta name="cover" content="cover-image" />
 		<dc:language>{{language}}</dc:language>
 		<dc:title id="title01">{{title}}</dc:title>		
@@ -23,10 +23,6 @@
     	{{#publishers}}<dc:publisher>{{.}}</dc:publisher>{{/publishers}}
     	<dc:rights>{{rights}}</dc:rights>
 		{{#subjects}}<dc:subject>{{.}}</dc:subject>{{/subjects}}
-		
-		<!-- SECONDARY -->				
-		<dc:title id="title02">An EPUB 3 Sample Document</dc:title>	
-		
 	</metadata>	
 	<manifest>
 		{{#items}}
