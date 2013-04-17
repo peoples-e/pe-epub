@@ -109,7 +109,27 @@ describe("Assets in the EPUB", function(){
           break;
         }
       }
-      // pp.clean();
+      pp.clean();
+    });
+  });
+  
+  it("can pull in local assets", function(){
+    var epubPath = '';
+    var localTestFile = __dirname + "/assets/test.jpg";
+    runs(function(){
+      pp.json.pages[0].body += "<img src='file://"+localTestFile+"'/>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/' + path.basename(localTestFile))).toBe(true);
+      pp.clean();
     });
   });
 });

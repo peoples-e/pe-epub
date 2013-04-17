@@ -5,6 +5,8 @@ var cheerio    = require('cheerio');
 var http       = require('http');
 var path       = require('path');
 var async      = require("async");
+var mmm        = require('mmmagic');
+var Magic      = mmm.Magic;
 
 var templatesDir = __dirname + '/templates/';
 
@@ -357,7 +359,22 @@ Peepub.prototype._getPage = function(i){
 
 // will pull it from the internet (or not) and write it
 Peepub.prototype._createFile = function(dest, source, callback){
-  if((/^https?:\/\//).test(source)){
+  
+  // local file
+  if((/^file:\/\//).test(source)){
+    var file  = source.replace('file://', '');
+    var magic = new Magic(mmm.MAGIC_MIME_TYPE);
+    
+    magic.detectFile(file, function(err, mime_type) {
+      if (err) throw err;
+      
+      fs.writeFile(dest, fs.readFileSync(file), function(err){
+        callback(err, { headers : { 'content-type' : mime_type }}); // mimic http response
+      });
+    });
+  
+  // internet  
+  } else if((/^https?:\/\//).test(source)){
     http.get(source, function(res){
       res.pipe(fs.createWriteStream(dest));
       res.on('end', function(err){
@@ -365,6 +382,7 @@ Peepub.prototype._createFile = function(dest, source, callback){
       });
     });
     
+  // string
   } else {
     fs.writeFile(dest, source, function(err){
       callback(err);
