@@ -7,16 +7,16 @@
     "name": "Oliver Wise"
   },
   "dependencies": {
-	  "handlebars" : "1.0.x",
-	  "lodash" : "*",
-	  "cheerio" : "0.10.x",
-	  "node-zip" : "1.x",
-	  "async" : "0.2.x",
-	  "mmmagic" : "*"
+    "handlebars": "1.0.x",
+    "lodash": "*",
+    "cheerio": "0.10.x",
+    "node-zip": "1.x",
+    "async": "0.2.x",
+    "mmmagic": "*"
   },
-  "devDependencies" : {
-    "jasmine-node" : "1.4.x",
-     "cheerio" : "0.10.x",
-    "lodash" : "*"
+  "devDependencies": {
+    "jasmine-node": "1.4.x",
+    "grunt": "~0.4.1",
+    "grunt-contrib-handlebars": "~0.5.8"
   }
 }
