@@ -8,7 +8,9 @@ var async      = require("async");
 var mmm        = require('mmmagic');
 var Magic      = mmm.Magic;
 
-var templatesDir = __dirname + '/templates/';
+var templatesBase    = 'templates/';
+var templatesDir     = __dirname + '/' + templatesBase;
+handlebars.templates = require(templatesDir + 'templates.js');
 
 // utils
 function s4() {
@@ -252,7 +254,6 @@ Peepub.prototype._getDom = function(str){
 
 Peepub.prototype._contentOpf = function(options, callback){
   var that     = this;
-  var template = fs.readFileSync(templatesDir + "content.opf", "utf8");
   var json     = this.getJson();
   
   if(typeof options === 'function'){
@@ -284,7 +285,7 @@ Peepub.prototype._contentOpf = function(options, callback){
         json.itemrefs = that.json.pages;                  // add pages to the spine
         
         that._createToc(function(){
-          var contentOpf = handlebars.compile(template)(json);
+          var contentOpf = handlebars.templates[templatesBase + "content.opf"](json);
           fs.writeFile(that.contentOpfPath(), contentOpf, function(err){
             if(err) throw 'content.opf didnt save';
             callback(contentOpf);
@@ -298,7 +299,7 @@ Peepub.prototype._contentOpf = function(options, callback){
   // this is used for testing
   // synchronously returns basic contentOpf
   } else {
-    return handlebars.compile(template)(json);
+    return handlebars.templates[templatesBase + "content.opf"](json);
   }
 }
 
@@ -324,7 +325,7 @@ Peepub.prototype._createToc = function(callback){
     });
   json.css = this.assets.css;
   
-  var tocHtml = handlebars.compile(fs.readFileSync(templatesDir + "toc.html", "utf8"))(json);
+  var tocHtml = handlebars.templates[templatesBase + "toc.html"](json);
   fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.html', tocHtml, function(err){
     if(err) throw 'toc.html didnt save';
     finished_files++;
@@ -333,7 +334,7 @@ Peepub.prototype._createToc = function(callback){
     }
   });
   
-  var tocNcx = handlebars.compile(fs.readFileSync(templatesDir + "toc.ncx", "utf8"))(json);
+  var tocNcx = handlebars.templates[templatesBase + "toc.ncx"](json);
   fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', tocNcx, function(err){
     if(err) throw 'toc.ncx didnt save';
     finished_files++;
@@ -346,14 +347,12 @@ Peepub.prototype._createToc = function(callback){
 
 Peepub.prototype._getPage = function(i){
   var that = this;
-  var template = fs.readFileSync(templatesDir + "page.html", "utf8");
   var json     = this.getJson().pages[i];
   
   // add links/script tags
   json.css = this.assets.css;
   json.js = this.assets.js;
-  
-  return handlebars.compile(template)(json);
+  return handlebars.templates[templatesBase + "page.html"](json);
   
 }
 
