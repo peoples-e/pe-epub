@@ -12,16 +12,14 @@ var templatesBase    = 'templates/';
 var templatesDir     = __dirname + '/' + templatesBase;
 handlebars.templates = require(templatesDir + 'templates.js');
 
+
 // utils
 function s4() {
-  return Math.floor((1 + Math.random()) * 0x10000)
-             .toString(16)
-             .substring(1);
-};
+  return (Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1));
+}
 
 function guid() {
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-         s4() + '-' + s4() + s4() + s4();
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
 // http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
@@ -30,20 +28,20 @@ function escapeRegExp(str) {
 }
 
 function deleteFolderRecursive(path) {
-    var files = [];
-    if( fs.existsSync(path) ) {
-        files = fs.readdirSync(path);
-        files.forEach(function(file,index){
-            var curPath = path + "/" + file;
-            if(fs.statSync(curPath).isDirectory()) { // recurse
-                deleteFolderRecursive(curPath);
-            } else { // delete file
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(path);
-    }
-};
+  var files = [];
+  if (fs.existsSync(path)) {
+    files = fs.readdirSync(path);
+    files.forEach(function (file, index) {
+      var curPath = path + "/" + file;
+      if (fs.statSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+}
 
 /**
  * Mapping function on all files in a folder and it's subfolders
@@ -52,105 +50,107 @@ function deleteFolderRecursive(path) {
  * @param callback {Function} Callback fired after all files have been processed with (err, aggregatedResults)
  */
 function mapAllFiles(dir, action, callback, concurrency) {
-    var output = [];
-    
-    // create a queue object with concurrency 2
-    var q = async.queue(function (filename, next) {
-        fs.stat(filename, function (err, stats) {
-            if (err) return next(err);
-            
-            if (stats.isDirectory()) {
-                readFolder(filename, next);
-            }
-            else {
-                action(filename, stats, function (res) {
-                    if (res) {
-                        output.push(res);
-                    }
-                    
-                    next();
-                });                
-            }
-        });
-    }, concurrency || 5);
-    
-    // read folder and push stuff to queue
-    function readFolder (dir, next) {
-        fs.readdir(dir, function (err, files) {
-            if (err) return next(err);
-            
-            q.push(files.map(function (file) {
-                return path.join(dir, file);
-            }));
-            
-            next();
-        });
-    };
-    
-    readFolder(dir, function () {
-        // on drain we're done
-        q.drain = function (err) {
-            callback(err, output);
-        };
+  var output = [], q;
+
+  // read folder and push stuff to queue
+  function readFolder(dir, next) {
+    fs.readdir(dir, function (err, files) {
+      if (err) { return next(err); }
+
+      q.push(files.map(function (file) {
+        return path.join(dir, file);
+      }));
+      next();
     });
-};
+  }
+
+  // create a queue object with concurrency 2
+  q = async.queue(function (filename, next) {
+    fs.stat(filename, function (err, stats) {
+      if (err) { return next(err); }
+
+      if (stats.isDirectory()) {
+        readFolder(filename, next);
+      } else {
+        action(filename, stats, function (res) {
+          if (res) {
+            output.push(res);
+          }
+          next();
+        });
+      }
+    });
+  }, concurrency || 5);
+
+  readFolder(dir, function () {
+    // on drain we're done
+    q.drain = function (err) {
+      callback(err, output);
+    };
+  });
+}
 
 
 /**
  *
  */
-function Peepub(){
+var Peepub;
+Peepub = function Peepub(first, debug) {
+  'use strict';
+
   this.json = {};
-  if(arguments[0]){
-    this.json = arguments[0];
+  if (first) {
+    this.json = first;
   }
-  if(arguments[1]){
-    this.debug = arguments[1];
+  if (debug) {
+    this.debug = debug;
   }
   this.id = guid();
   this.requiredFields = ['title', 'cover']; // we'll take care of publish date and uuid
-  
+
   this.json.css = this.json.css || [];
-  if(this.json.css && typeof this.json.css === 'string') {
+  if (this.json.css && typeof this.json.css === 'string') {
     this.json.css = [this.json.css];
   }
   this.json.js = this.json.js || [];
-  if(this.json.js && typeof this.json.js === 'string') {
+  if (this.json.js && typeof this.json.js === 'string') {
     this.json.js = [this.json.js];
   }
-  
+
   this.assets = {
     css     : [],
     js      : [],
     assets  : []
-  }
-  
-}
+  };
+};
+
 Peepub.EPUB_DIR = __dirname + '/epubs/';
 Peepub.EPUB_CONTENT_DIR = 'OEBPS/'; // this is hard coded in templates/content.opf - use handlebars if this will ever change
 
-Peepub.prototype._handleDefaults = function(){
-  
-  var d = new Date;
-  var m = d.getMonth() + 1 + '';
-  if(m.length == 1) m = '0' + m;
+Peepub.prototype._handleDefaults = function () {
+
+  var d = new Date();
+  var m = d.getMonth() + 1;
+  if (m.toString().length === 1) {
+    m = '0' + m;
+  }
   this.json.date = this.json.date || d.getFullYear() + '-' + m + '-' + d.getDate();
   this.json.language = this.json.language || 'en-US';
 
   // identifiers - can be isbn,url,uuid in that order of preference
-  if(!this.json.isbn && !this.json.url && !this.json.uuid){
+  if (!this.json.isbn && !this.json.url && !this.json.uuid) {
     this.json.uuid = guid();
 
-  } else if(this.json.isbn) {
+  } else if (this.json.isbn) {
     this.json.url = null;
     this.json.uuid = null;
 
-  } else if(this.json.url) {
+  } else if (this.json.url) {
     this.json.uuid = null;
   }
-  
-  // creators
-}
+
+// creators
+};
 
 Peepub.prototype._epubPath = function(add){
   var dir = Peepub.EPUB_DIR + this.id + '/';
@@ -172,9 +172,7 @@ Peepub.prototype._epubPath = function(add){
     }
   } 
   return dir;
-}
-
-
+};
 
 Peepub.prototype._fetchAssets = function(callback){
   this._fetchAssetsCalled = true;
@@ -243,13 +241,13 @@ Peepub.prototype._fetchAssets = function(callback){
       _check_all_good();
     });
   });
-}
+};
 
 Peepub.prototype._getDom = function(str){
   var that = this;
   var uuid = guid();
   return cheerio.load("<div id='"+uuid+"'>" + str + '</div>');
-}
+};
 
 
 Peepub.prototype._contentOpf = function(options, callback){
@@ -301,7 +299,7 @@ Peepub.prototype._contentOpf = function(options, callback){
   } else {
     return handlebars.templates[templatesBase + "content.opf"](json);
   }
-}
+};
 
 Peepub.prototype._createToc = function(callback){
   var that           = this;
@@ -343,7 +341,7 @@ Peepub.prototype._createToc = function(callback){
     }
   });
   
-}
+};
 
 Peepub.prototype._getPage = function(i){
   var that = this;
@@ -354,7 +352,7 @@ Peepub.prototype._getPage = function(i){
   json.js = this.assets.js;
   return handlebars.templates[templatesBase + "page.html"](json);
   
-}
+};
 
 // will pull it from the internet (or not) and write it
 Peepub.prototype._createFile = function(dest, source, callback){
@@ -387,7 +385,7 @@ Peepub.prototype._createFile = function(dest, source, callback){
       callback(err);
     });
   }
-}
+};
 
 Peepub.prototype._createPage = function(i, callback){
   var pad      = "00000";
@@ -418,7 +416,7 @@ Peepub.prototype._createPage = function(i, callback){
     
     callback(fullpath);
   });
-}
+};
 
 Peepub.prototype._createPages = function(callback){
   if(!this._fetchAssetsCalled) throw "_fetchAssets needs to be called before _createPages";
@@ -431,7 +429,7 @@ Peepub.prototype._createPages = function(callback){
       }
     });
   })
-}
+};
 
 Peepub.prototype._zip = function(callback){
   var zip = new require('node-zip')();
@@ -470,9 +468,7 @@ Peepub.prototype._zip = function(callback){
       });
       
   });
-  
-  
-}
+};
 
 
 // PUBLIC //

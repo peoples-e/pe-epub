@@ -12,10 +12,24 @@ module.exports = function(grunt) {
               "templates/templates.js": ['templates/container.xml', 'templates/content.opf','templates/page.html', 'templates/toc.html', 'templates/toc.ncx']
         }
       }
-      
+    },
+    jslint : {
+      files : 'Peepub.js',
+      directives : {
+        predef : ['require', '__dirname'],
+        indent : 2,
+        nomen : true,
+        sloppy : true,
+        stupid : true,
+        vars : true
+      },
+      options : {
+        errorsOnly : true
+      }
     }
   });
 
+  grunt.loadNpmTasks('grunt-jslint');
   grunt.loadNpmTasks('grunt-contrib-handlebars');
 
   // Default task(s).

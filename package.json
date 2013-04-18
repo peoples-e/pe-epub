@@ -17,6 +17,7 @@
   "devDependencies": {
     "jasmine-node": "1.4.x",
     "grunt": "~0.4.1",
-    "grunt-contrib-handlebars": "~0.5.8"
+    "grunt-contrib-handlebars": "~0.5.8",
+    "grunt-jslint": "~0.2.5a"
   }
 }
