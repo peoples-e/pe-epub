@@ -152,8 +152,12 @@ Peepub.prototype._handleDefaults = function () {
 // creators
 };
 
+Peepub.prototype._epubDir = function(){
+  return (this.epubDir || Peepub.EPUB_DIR);
+};
+
 Peepub.prototype._epubPath = function(add){
-  var dir = Peepub.EPUB_DIR + this.id + '/';
+  var dir = this._epubDir() + this.id + '/';
   if(add){ 
     this._epubPath();
     
@@ -480,7 +484,7 @@ Peepub.prototype._zip = function(callback){
   }, function (err, data) {
       // if (err) return callback(err);
       
-      var epubPath = Peepub.EPUB_DIR + '/' + that.id + '.epub';
+      var epubPath = that._epubDir() + '/' + that.id + '.epub';
       
       // mimetype must be first
       var filteredData = _.filter(data, function(fileObj){
@@ -492,9 +496,10 @@ Peepub.prototype._zip = function(callback){
       });
       
       _.each(filteredData, function(fileObj){
-        zip.file(fileObj.name, fs.readFileSync(fileObj.path, 'binary'), { binary : true });
+        fs.readFile(fileObj.path, 'binary', function(err, data){
+          zip.file(fileObj.name, data, { binary : true });
+        });
       });
-      
       
       fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
         that.epubFile = epubPath;
@@ -544,18 +549,37 @@ Peepub.prototype.set = function(key, val){
 
 Peepub.prototype.clean = function(){
   deleteFolderRecursive(this._epubPath());
-  if(fs.existsSync(this.epubFile)){
+  if (fs.existsSync(this.epubFile)) {
     fs.unlinkSync(this.epubFile);
   }
 }
 
-Peepub.prototype.create = function(callback){
+Peepub.prototype.create = function(options, callback){
   var that = this;
   
-  this._contentOpf(function(){
-    that._zip(function(err, epubPath){
-      callback(err, epubPath);
-    });
+  if (arguments.length === 1){
+    callback = options;
+    options = {};
+  } 
+  
+  var opts = _.extend({
+    epubDir : null,
+    zip : true
+  }, options);
+  
+  if(opts.epubDir) {
+    this.epubDir = opts.epubDir;
+  }
+  
+  this._contentOpf(function() {
+    if(opts.zip) {
+      that._zip(function(err, epubPath) {
+        callback(err, epubPath);
+      });
+      
+    } else {
+      callback(null, that._epubPath());
+    }
   });
 }
 
