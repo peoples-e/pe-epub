@@ -178,18 +178,41 @@ Peepub.prototype._fetchAssets = function(callback){
   this._fetchAssetsCalled = true;
   var that      = this;
   var json      = this.getJson();
-  var all_pages = _.map(json.pages, function(page){ return page.body }).join('');
+  var all_pages = _.map(json.pages, function(page){ return page.body; }).join('');
   var $         = this._getDom(all_pages);
   var images    = ([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })); 
+  var videos    = [];
+  
+  _.each($('video'), function(video){
+    if ($(video).attr('poster')) {
+      images.push($(video).attr('poster'));
+    }
+    _.each($(video).find('source'), function(source){
+      var src = $(source).attr('src');
+      videos.push(src);
+      var filePath = that._epubPath('assets') + path.basename(src);
+      that._createFile(filePath, src, function(err, res){
+        var asset = {
+                   src : src,
+          'media-type' : res.headers['content-type'],
+                  href : 'assets/' + path.basename(filePath),
+                   _id : guid()
+        };
+        that.assets.assets.push(asset);
+        _check_all_good();
+      });
+    });
+  });
   
   function _check_all_good(){
-    if( that.assets.assets.length === images.length && 
+    if( that.assets.assets.length === (images.length + videos.length) && 
         that.assets.css.length === json.css.length &&
         that.assets.js.length === json.js.length
       ){
       callback(that.assets.assets.concat(that.assets.css).concat(that.assets.js));
     }
   }
+  
   
   _.each(images, function(img){
     var filePath = that._epubPath('assets') + path.basename(img);

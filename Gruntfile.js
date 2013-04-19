@@ -16,12 +16,13 @@ module.exports = function(grunt) {
     jslint : {
       files : 'Peepub.js',
       directives : {
-        predef : ['require', '__dirname'],
         indent : 2,
         nomen : true,
         sloppy : true,
         stupid : true,
-        vars : true
+        vars : true,
+        white : true,
+        node : true
       },
       options : {
         errorsOnly : true

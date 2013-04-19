@@ -132,4 +132,25 @@ describe("Assets in the EPUB", function(){
       pp.clean();
     });
   });
+  
+  
+  it("handles video tags", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<video poster='http://placekitten.com/600/800' controls><source src='http://thepeoplesebook.net/pe-epub/testing/test.mp4' type='video/mp4'></video>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/test.mp4')).toBe(true);
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/800')).toBe(true);
+      pp.clean();
+    });
+  });
 });
