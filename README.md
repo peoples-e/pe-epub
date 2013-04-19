@@ -14,6 +14,9 @@ Here's the bare minimum you need to make an epub
 		}]
 	}
 	
+## Install	
+	npm install pe-pub
+	
 ## Usage
 	var Peepub   = require('pe-epub');
 	var epubJson = require('your-epub.json'); // see example.json for the specs
