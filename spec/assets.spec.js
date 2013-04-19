@@ -96,16 +96,42 @@ describe("Assets in the EPUB", function(){
     }, "it to assemble everything");
 
     runs(function(){
-      var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
-      var $copf = cheerio.load(contentopf);
       
       for(var i in pp.json.pages){
         var page = pp.json.pages[i];
         var $page = cheerio.load(page.body);
         if($page('img').length > 0){
+          expect($page('img').first().attr('src').match(/http/)).toBe(null);
           $htmlPage = cheerio.load(fs.readFileSync(page.path));
           expect($htmlPage("img[src='"+$page('img').first().attr('src')+"']").length > 0).toBe(true);
           
+          break;
+        }
+      }
+      pp.clean();
+    });
+  });
+  
+  it("image tags need to be closed", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      
+      for(var i in pp.json.pages){
+        var page = pp.json.pages[i];
+        var $page = cheerio.load(page.body);
+        if($page('img').length > 0){
+          var regex = new RegExp('<img[^>]+></img>', 'i');
+          expect(regex.test(page.body)).toBe(true);
           break;
         }
       }
@@ -134,7 +160,7 @@ describe("Assets in the EPUB", function(){
   });
   
   
-  it("handles video tags", function(){
+  it("handles video tag assets", function(){
     var epubPath = '';
     runs(function(){
       pp.json.pages[0].body += "<video poster='http://placekitten.com/600/800' controls><source src='http://thepeoplesebook.net/pe-epub/testing/test.mp4' type='video/mp4'></video>";
@@ -153,4 +179,58 @@ describe("Assets in the EPUB", function(){
       pp.clean();
     });
   });
+  
+  it("makes video tag paths relative to the epub", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<video poster='http://placekitten.com/600/800' controls><source src='http://thepeoplesebook.net/pe-epub/testing/test.mp4' type='video/mp4'></video>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      
+      var page = pp.json.pages[0];
+      var $page = cheerio.load(page.body);
+      expect($page('video source').first().attr('src').match(/http/)).toBe(null);
+      
+      $htmlPage = cheerio.load(fs.readFileSync(page.path));
+      expect($htmlPage("video source[src='"+$page('video source').first().attr('src')+"']").length > 0).toBe(true);
+      pp.clean();
+    });
+  });
+  
+  it("image tags need to be closed when there's a video", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<video poster='http://placekitten.com/600/800' controls><source src='http://thepeoplesebook.net/pe-epub/testing/test.mp4' type='video/mp4'></video>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      
+      for(var i in pp.json.pages){
+        var page = pp.json.pages[i];
+        var $page = cheerio.load(page.body);
+        if($page('img').length > 0){
+          var regex = new RegExp('<img[^>]+></img>', 'g');
+          expect(regex.test(page.body)).toBe(true);
+          break;
+        }
+      }
+      pp.clean();
+    });
+  });
+  
 });

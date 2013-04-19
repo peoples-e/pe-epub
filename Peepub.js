@@ -183,6 +183,15 @@ Peepub.prototype._fetchAssets = function(callback){
   var images    = ([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })); 
   var videos    = [];
   
+  function _check_all_good(){
+    if( that.assets.assets.length === (images.length + videos.length) && 
+        that.assets.css.length === json.css.length &&
+        that.assets.js.length === json.js.length
+      ){
+      callback(that.assets.assets.concat(that.assets.css).concat(that.assets.js));
+    }
+  }
+  
   _.each($('video'), function(video){
     if ($(video).attr('poster')) {
       images.push($(video).attr('poster'));
@@ -203,16 +212,6 @@ Peepub.prototype._fetchAssets = function(callback){
       });
     });
   });
-  
-  function _check_all_good(){
-    if( that.assets.assets.length === (images.length + videos.length) && 
-        that.assets.css.length === json.css.length &&
-        that.assets.js.length === json.js.length
-      ){
-      callback(that.assets.assets.concat(that.assets.css).concat(that.assets.js));
-    }
-  }
-  
   
   _.each(images, function(img){
     var filePath = that._epubPath('assets') + path.basename(img);
@@ -269,7 +268,7 @@ Peepub.prototype._fetchAssets = function(callback){
 Peepub.prototype._getDom = function(str){
   var that = this;
   var uuid = guid();
-  return cheerio.load("<div id='"+uuid+"'>" + str + '</div>');
+  return cheerio.load("<div id='"+uuid+"'>" + str + '</div>', { xmlMode: true });
 };
 
 
@@ -370,6 +369,10 @@ Peepub.prototype._getPage = function(i){
   var that = this;
   var json     = this.getJson().pages[i];
   
+  // close img tags at the last minute because they get removed by cheerio
+  var regex = new RegExp('(<img[^>]+>)', 'g');
+  json.body = json.body.replace(regex, '$1</img>');
+
   // add links/script tags
   json.css = this.assets.css;
   json.js = this.assets.js;
@@ -419,10 +422,18 @@ Peepub.prototype._createPage = function(i, callback){
   var $pageBody = cheerio.load(that.json.pages[i].body);
   // replace external assets with local
   _.each(that.assets.assets, function(ass){
-    if($pageBody("img[src='"+ass.src+"']").length > 0){
+    if ($pageBody("img[src='"+ass.src+"']").length > 0) {
       $pageBody("img[src='"+ass.src+"']").attr('src', ass.href);
-      var regex = new RegExp('(<img[^>]+>)', 'g')
-      that.json.pages[i].body = $pageBody.html().replace(regex, '$1</img>');
+      that.json.pages[i].body = $pageBody.html();
+      
+    } else if ($pageBody("video").length > 0) {
+      if($pageBody("video[poster='"+ass.src+"']")[0]){
+        $pageBody("video[poster='"+ass.src+"']").attr('poster', ass.href);
+      }
+      if($pageBody("source[src='"+ass.src+"']")[0]){
+        $pageBody("source[src='"+ass.src+"']").attr('src', ass.href); // videos should be kept online
+      }
+      that.json.pages[i].body = $pageBody.html();
     }
   });
   
