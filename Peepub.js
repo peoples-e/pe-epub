@@ -185,10 +185,25 @@ Peepub.prototype._fetchAssets = function(callback){
   var all_pages = _.map(json.pages, function(page){ return page.body; }).join('');
   var $         = this._getDom(all_pages);
   var images    = ([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })); 
-  var videos    = [];
-  
+  var videoCount = 0;
+  var audioCount = 0;
+
+  _.each($('video'), function(video){
+    if($(video).attr('src')){
+      videoCount += 1;
+    }
+    videoCount += $(video).find('source').length;
+  });
+
+  _.each($('audio'), function(audio){
+    if($(audio).attr('src')){
+      audioCount += 1;
+    }
+    audioCount += $(audio).find('source').length;
+  });
+
   function _check_all_good(){
-    if( that.assets.assets.length === (images.length + videos.length) && 
+    if( that.assets.assets.length === (images.length + videoCount + audioCount) && 
         that.assets.css.length === json.css.length &&
         that.assets.js.length === json.js.length
       ){
@@ -200,9 +215,33 @@ Peepub.prototype._fetchAssets = function(callback){
     if ($(video).attr('poster')) {
       images.push($(video).attr('poster'));
     }
-    _.each($(video).find('source'), function(source){
-      var src = $(source).attr('src');
-      videos.push(src);
+    var videoSrcs = _.map($(video).find('source'), function(source){ return $(source).attr('src'); });
+    var inlineVideoSrc = $(video).attr('src');
+    if(inlineVideoSrc){
+      videoSrcs.push(inlineVideoSrc);
+    }
+    _.each(videoSrcs, function(src){
+      var filePath = that._epubPath('assets') + path.basename(src);
+      that._createFile(filePath, src, function(err, res){
+        var asset = {
+                   src : src,
+          'media-type' : res.headers['content-type'],
+                  href : 'assets/' + path.basename(filePath),
+                   _id : guid()
+        };
+        that.assets.assets.push(asset);
+        _check_all_good();
+      });
+    });
+  });
+  
+  _.each($('audio'), function(audio){
+    var audioSrcs = _.map($(audio).find('source'), function(source){ return $(source).attr('src'); });
+    var inlineAudioSrc = $(audio).attr('src');
+    if(inlineAudioSrc){
+      audioSrcs.push(inlineAudioSrc);
+    }
+    _.each(audioSrcs, function(src){
       var filePath = that._epubPath('assets') + path.basename(src);
       that._createFile(filePath, src, function(err, res){
         var asset = {
@@ -247,7 +286,7 @@ Peepub.prototype._fetchAssets = function(callback){
                  id  : 'css_' + i
       };
       
-      that.assets.css.push(asset);
+      that.assets.css.unshift(asset);
       _check_all_good();
     });
   });
@@ -263,7 +302,7 @@ Peepub.prototype._fetchAssets = function(callback){
                  id  : 'js_' + i
       };
       
-      that.assets.js.push(asset);
+      that.assets.js.unshift(asset);
       _check_all_good();
     });
   });
@@ -429,16 +468,30 @@ Peepub.prototype._createPage = function(i, callback){
     if ($pageBody("img[src='"+ass.src+"']").length > 0) {
       $pageBody("img[src='"+ass.src+"']").attr('src', ass.href);
       that.json.pages[i].body = $pageBody.html();
-      
-    } else if ($pageBody("video").length > 0) {
+    }
+    if ($pageBody("video").length > 0) {
       if($pageBody("video[poster='"+ass.src+"']")[0]){
         $pageBody("video[poster='"+ass.src+"']").attr('poster', ass.href);
       }
+      if($pageBody("video[src='"+ass.src+"']")[0]){
+        $pageBody("video[src='"+ass.src+"']").attr('src', ass.href);
+      }
       if($pageBody("source[src='"+ass.src+"']")[0]){
-        $pageBody("source[src='"+ass.src+"']").attr('src', ass.href); // videos should be kept online
+        $pageBody("source[src='"+ass.src+"']").attr('src', ass.href);
       }
       that.json.pages[i].body = $pageBody.html();
     }
+
+    if ($pageBody("audio").length > 0) {
+      if($pageBody("audio[src='"+ass.src+"']")[0]){
+        $pageBody("audio[src='"+ass.src+"']").attr('src', ass.href);
+      }
+      if($pageBody("source[src='"+ass.src+"']")[0]){
+        $pageBody("source[src='"+ass.src+"']").attr('src', ass.href);
+      }
+      that.json.pages[i].body = $pageBody.html();
+    }
+
   });
   
   this._createFile(fullpath, this._getPage(i), function(err){
@@ -517,7 +570,7 @@ Peepub.prototype.getJson = function(){
   this._handleDefaults();
   
   // we want these to be arrays, but we'll be nice to people
-  var oneToMany = ['subject', 'publisher', 'creator', 'contributor'];
+  var oneToMany = ['subject', 'publisher', 'creator', 'contributor', 'language'];
   _.each(oneToMany, function _oneToMany(field){
     if(that.json[field] && !that.json[field + 's']){
       that.json[field + 's'] = [that.json[field]];
@@ -539,7 +592,8 @@ Peepub.prototype.getJson = function(){
                         _pad(utc.getHours() + 1) + ':' + 
                         _pad(utc.getMinutes() + 1) + ':' + 
                         _pad(utc.getSeconds() + 1) + 'Z';
-  
+
+
   return this.json;
 }
 

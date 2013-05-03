@@ -1,6 +1,8 @@
 # pe-epub
 
-"peepub" makes epubs better.  Our goal is to make it as easy as possible to output a valid epub.  Peepub is for Node.js
+makes epubs better.  
+
+Our goal is to make it as easy as possible to output a valid epub. 
 
 ## JSON > EPUB
 Here's the bare minimum you need to make an epub

@@ -3,7 +3,8 @@
 	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
 		<meta property="dcterms:modified">{{modified}}</meta>
 		<meta name="cover" content="cover-image" />
-		<dc:language>{{language}}</dc:language>
+		{{#languages}}<dc:language>{{.}}</dc:language>
+		{{/languages}}
 		<dc:title id="title01">{{title}}</dc:title>		
 		{{#subtitle}}<meta refines="#title01" property="title-type">{{.}}</meta>{{/subtitle}}
 		{{#isbn}}<dc:identifier id="bookid">urn:isbn:{{.}}</dc:identifier>{{/isbn}}

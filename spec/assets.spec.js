@@ -179,6 +179,50 @@ describe("Assets in the EPUB", function(){
       pp.clean();
     });
   });
+
+  it("handles video tag src attributes", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<video controls src='http://thepeoplesebook.net/pe-epub/testing/test.mp4'></video>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/test.mp4')).toBe(true);
+      pp.clean();
+    });
+  });
+
+  it("makes video inline srcs relative to the epub", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<video controls src='http://thepeoplesebook.net/pe-epub/testing/test.mp4'></video>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      
+      var page = pp.json.pages[0];
+      var $page = cheerio.load(page.body);
+      expect($page('video').first().attr('src').match(/http/)).toBe(null);
+      
+      $htmlPage = cheerio.load(fs.readFileSync(page.path));
+      expect($htmlPage("video[src='"+$page('video').first().attr('src')+"']").length > 0).toBe(true);
+      pp.clean();
+    });
+  });
   
   it("makes video tag paths relative to the epub", function(){
     var epubPath = '';
@@ -233,4 +277,48 @@ describe("Assets in the EPUB", function(){
     });
   });
   
+
+  it("handles audio tags", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<audio controls><source src='http://thepeoplesebook.net/pe-epub/testing/test.mp3' type='audio/mp3'></audio>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/test.mp3')).toBe(true);
+      pp.clean();
+    });
+  });
+
+  it("makes audio tag paths relative to the epub", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<audio controls><source src='http://thepeoplesebook.net/pe-epub/testing/test.mp3' type='audio/mp3'></audio>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      
+      var page = pp.json.pages[0];
+      var $page = cheerio.load(page.body);
+      expect($page('audio source').first().attr('src').match(/http/)).toBe(null);
+      
+      $htmlPage = cheerio.load(fs.readFileSync(page.path));
+      expect($htmlPage("audio source[src='"+$page('audio source').first().attr('src')+"']").length > 0).toBe(true);
+      pp.clean();
+    });
+  });
 });

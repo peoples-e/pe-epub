@@ -140,6 +140,11 @@ describe("Content OPFs", function() {
     expect(opf.match(epubJson.subjects[0])).not.toBeNull();
     expect(opf.match(epubJson.subjects[1])).toBeNull();
   });
+
+  it("handles multiple languages", function(){
+    var opf = pp._contentOpf({ fetchAssets : false });
+    expect(opf.match(/<dc:language>/g).length).toBe(epubJson.languages.length);
+  });
   
   it("handles the modified date correctly", function(){
     var opf          = pp._contentOpf({ fetchAssets : false });

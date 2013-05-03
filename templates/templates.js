@@ -21,13 +21,22 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 function program1(depth0,data) {
   
   var buffer = "";
+  buffer += "<dc:language>"
+    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
+    + "</dc:language>\n		";
+  return buffer;
+  }
+
+function program3(depth0,data) {
+  
+  var buffer = "";
   buffer += "<meta refines=\"#title01\" property=\"title-type\">"
     + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
     + "</meta>";
   return buffer;
   }
 
-function program3(depth0,data) {
+function program5(depth0,data) {
   
   var buffer = "";
   buffer += "<dc:identifier id=\"bookid\">urn:isbn:"
@@ -36,7 +45,7 @@ function program3(depth0,data) {
   return buffer;
   }
 
-function program5(depth0,data) {
+function program7(depth0,data) {
   
   var buffer = "";
   buffer += "<dc:identifier id=\"bookid\">urn:uuid:"
@@ -45,7 +54,7 @@ function program5(depth0,data) {
   return buffer;
   }
 
-function program7(depth0,data) {
+function program9(depth0,data) {
   
   var buffer = "";
   buffer += "<dc:identifier id=\"bookid\">url:"
@@ -54,7 +63,7 @@ function program7(depth0,data) {
   return buffer;
   }
 
-function program9(depth0,data) {
+function program11(depth0,data) {
   
   var buffer = "", stack1;
   buffer += "<dc:creator id=\"creator";
@@ -85,7 +94,7 @@ function program9(depth0,data) {
   return buffer;
   }
 
-function program11(depth0,data) {
+function program13(depth0,data) {
   
   var buffer = "", stack1;
   buffer += "<dc:contributor id=\"contributor";
@@ -116,7 +125,7 @@ function program11(depth0,data) {
   return buffer;
   }
 
-function program13(depth0,data) {
+function program15(depth0,data) {
   
   var buffer = "";
   buffer += "<dc:publisher>"
@@ -125,7 +134,7 @@ function program13(depth0,data) {
   return buffer;
   }
 
-function program15(depth0,data) {
+function program17(depth0,data) {
   
   var buffer = "";
   buffer += "<dc:subject>"
@@ -134,16 +143,16 @@ function program15(depth0,data) {
   return buffer;
   }
 
-function program17(depth0,data) {
+function program19(depth0,data) {
   
   var buffer = "", stack1, options;
   buffer += "\n		<item ";
-  options = {hash:{},inverse:self.noop,fn:self.program(18, program18, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(20, program20, data),data:data};
   if (stack1 = helpers.id) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.id) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  options = {hash:{},inverse:self.program(20, program20, data),fn:self.noop,data:data};
+  options = {hash:{},inverse:self.program(22, program22, data),fn:self.noop,data:data};
   if (stack1 = helpers.id) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.id) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
@@ -157,7 +166,7 @@ function program17(depth0,data) {
   else { stack1 = depth0['media-type']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "\" ";
-  options = {hash:{},inverse:self.noop,fn:self.program(22, program22, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(24, program24, data),data:data};
   if (stack1 = helpers.properties) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.properties; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.properties) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
@@ -165,7 +174,7 @@ function program17(depth0,data) {
   buffer += "/>";
   return buffer;
   }
-function program18(depth0,data) {
+function program20(depth0,data) {
   
   var buffer = "";
   buffer += "id=\""
@@ -174,7 +183,7 @@ function program18(depth0,data) {
   return buffer;
   }
 
-function program20(depth0,data) {
+function program22(depth0,data) {
   
   var buffer = "", stack1;
   buffer += "id=\"asset_";
@@ -185,7 +194,7 @@ function program20(depth0,data) {
   return buffer;
   }
 
-function program22(depth0,data) {
+function program24(depth0,data) {
   
   var buffer = "";
   buffer += "properties=\""
@@ -194,7 +203,7 @@ function program22(depth0,data) {
   return buffer;
   }
 
-function program24(depth0,data) {
+function program26(depth0,data) {
   
   var buffer = "", stack1;
   buffer += "<itemref idref=\"";
@@ -209,46 +218,48 @@ function program24(depth0,data) {
   if (stack1 = helpers.modified) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.modified; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
-    + "</meta>\n		<meta name=\"cover\" content=\"cover-image\" />\n		<dc:language>";
-  if (stack1 = helpers.language) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.language; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "</dc:language>\n		<dc:title id=\"title01\">";
+    + "</meta>\n		<meta name=\"cover\" content=\"cover-image\" />\n		";
+  options = {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data};
+  if (stack1 = helpers.languages) { stack1 = stack1.call(depth0, options); }
+  else { stack1 = depth0.languages; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if (!helpers.languages) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n		<dc:title id=\"title01\">";
   if (stack1 = helpers.title) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.title; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</dc:title>		\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data};
   if (stack1 = helpers.subtitle) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.subtitle; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.subtitle) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data};
   if (stack1 = helpers.isbn) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.isbn; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.isbn) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(7, program7, data),data:data};
   if (stack1 = helpers.uuid) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.uuid; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.uuid) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(7, program7, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data};
   if (stack1 = helpers.url) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.url; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.url) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(11, program11, data),data:data};
   if (stack1 = helpers.creators) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.creators; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.creators) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n		\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(11, program11, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(13, program13, data),data:data};
   if (stack1 = helpers.contributors) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.contributors; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.contributors) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
@@ -262,7 +273,7 @@ function program24(depth0,data) {
   else { stack1 = depth0.description; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</dc:description>\n    	";
-  options = {hash:{},inverse:self.noop,fn:self.program(13, program13, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(15, program15, data),data:data};
   if (stack1 = helpers.publishers) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.publishers; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.publishers) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
@@ -272,19 +283,19 @@ function program24(depth0,data) {
   else { stack1 = depth0.rights; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   buffer += escapeExpression(stack1)
     + "</dc:rights>\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(15, program15, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(17, program17, data),data:data};
   if (stack1 = helpers.subjects) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.subjects; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.subjects) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n	</metadata>	\n	<manifest>\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(17, program17, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(19, program19, data),data:data};
   if (stack1 = helpers.items) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.items; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.items) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n	</manifest>\n	<spine toc=\"ncx\">\n		";
-  options = {hash:{},inverse:self.noop,fn:self.program(24, program24, data),data:data};
+  options = {hash:{},inverse:self.noop,fn:self.program(26, program26, data),data:data};
   if (stack1 = helpers.itemrefs) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.itemrefs; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.itemrefs) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
