@@ -331,6 +331,21 @@ function program3(depth0,data) {
   return buffer;
   }
 
+function program5(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<meta name=\"viewport\" content=\"width=";
+  if (stack1 = helpers['w']) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0['w']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + ", height=";
+  if (stack1 = helpers['h']) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0['h']; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\"></meta>\n		";
+  return buffer;
+  }
+
   buffer += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:epub=\"http:www.idpf.org/2007/ops\">\n	<head>\n		<title>";
   if (stack1 = helpers.title) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
   else { stack1 = depth0.title; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
@@ -346,6 +361,9 @@ function program3(depth0,data) {
   if (stack1 = helpers.js) { stack1 = stack1.call(depth0, options); }
   else { stack1 = depth0.js; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
   if (!helpers.js) { stack1 = blockHelperMissing.call(depth0, stack1, options); }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n		";
+  stack1 = helpers['if'].call(depth0, depth0.fixedFormat, {hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n		<meta charset=\"utf-8\"/>\n	</head>\n	<body>";
   if (stack1 = helpers.body) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
@@ -446,6 +464,15 @@ function program1(depth0,data) {
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n</navMap>\n\n</ncx>\n\n<!-- Created with pe-epub at http://thepeoplesebook.net -->";
   return buffer;
+  });
+
+this["JST"]["templates/com.apple.ibooks.display-options.xml"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  
+
+
+  return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<display_options>\n    <platform name=\"*\">\n        <option name=\"fixed-layout\">true</option>\n        <option name=\"orientation-lock\">none</option>\n        <option name=\"open-to-spread\">true</option>\n    </platform>\n    <platform name=\"iphone\">\n        <option name=\"fixed-layout\">true</option>\n        <option name=\"orientation-lock\">none</option>\n        <option name=\"open-to-spread\">false</option>\n    </platform>\n</display_options>";
   });
 
 if (typeof exports === 'object' && exports) {module.exports = this["JST"];}

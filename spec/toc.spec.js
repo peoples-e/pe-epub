@@ -2,8 +2,8 @@ var Peepub          = require('../Peepub.js');
 var _               = require('lodash');
 var cheerio         = require('cheerio');
 var fs              = require('fs');
-var epubJson        = require('../example.json');
-var minimumEpubJson = require('../minimum.json');
+var epubJson        = require('../examples/example.json');
+var minimumEpubJson = require('../examples/minimum.json');
 var path            = require('path');
 var pp,min_pp;
 

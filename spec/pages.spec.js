@@ -3,8 +3,8 @@ var _               = require('lodash');
 var cheerio         = require('cheerio');
 var fs              = require('fs');
 var path            = require('path');
-var epubJson        = require('../example.json');
-var minimumEpubJson = require('../minimum.json');
+var epubJson        = require('../examples/example.json');
+var minimumEpubJson = require('../examples/minimum.json');
 var pp,min_pp;
 
 

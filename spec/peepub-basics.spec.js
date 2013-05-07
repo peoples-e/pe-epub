@@ -9,8 +9,8 @@ describe("Peepub Basics", function() {
     expect(typeof Peepub).toBe('function');
   });
   
-  var epubJson        = require('../example.json');
-  var minimumEpubJson = require('../minimum.json');
+  var epubJson        = require('../examples/example.json');
+  var minimumEpubJson = require('../examples/minimum.json');
   var pp,min_pp;
   
   beforeEach(function(){
@@ -87,8 +87,8 @@ describe("Peepub Basics", function() {
 
 describe("Content OPFs", function() {
   
-  var epubJson = require('../example.json');
-  var minimumEpubJson = require('../minimum.json');
+  var epubJson = require('../examples/example.json');
+  var minimumEpubJson = require('../examples/minimum.json');
   var pp,min_pp, pp_opf;
   
   beforeEach(function(){

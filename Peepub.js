@@ -409,16 +409,18 @@ Peepub.prototype._createToc = function(callback){
 };
 
 Peepub.prototype._getPage = function(i){
-  var that = this;
-  var json     = this.getJson().pages[i];
+  var that         = this;
+  var epubJson     = this.getJson();
+  var json         = epubJson.pages[i];
   
   // close img tags at the last minute because they get removed by cheerio
-  var regex = new RegExp('(<img[^>]+>)', 'g');
-  json.body = json.body.replace(regex, '$1</img>');
-
+  var regex        = new RegExp('(<img[^>]+>)', 'g');
+  json.body        = json.body.replace(regex, '$1</img>');
+  
   // add links/script tags
-  json.css = this.assets.css;
-  json.js = this.assets.js;
+  json.css         = this.assets.css;
+  json.js          = this.assets.js;
+  json.fixedFormat = epubJson.fixedFormat;
   return handlebars.templates[templatesBase + "page.html"](json);
   
 };
@@ -577,9 +579,16 @@ Peepub.prototype.getJson = function(){
     }
   });
   
+  // required fields
   _.each(this.requiredFields, function(field){
     if(!that.json[field]) throw "Missing a required field: " + field;
   });
+
+  // fixed format required fields
+  if( !_.isUndefined(this.json.fixedFormat)
+      && (_.isUndefined(this.json.fixedFormat.w) || _.isUndefined(this.json.fixedFormat.h)) ){
+      throw "Fixed format epubs must define width and height: w,h";
+  }
   
   // modified - 2013-03-20T12:00:00Z
   var utc = new Date((new Date).toUTCString());
