@@ -124,8 +124,9 @@ Peepub = function Peepub(first, debug) {
   };
 };
 
-Peepub.EPUB_DIR = __dirname + '/epubs/';
+Peepub.EPUB_DIR         = __dirname + '/epubs/';
 Peepub.EPUB_CONTENT_DIR = 'OEBPS/'; // this is hard coded in templates/content.opf - use handlebars if this will ever change
+Peepub.EPUB_META_DIR    = 'META-INF/'; 
 
 Peepub.prototype._handleDefaults = function () {
 
@@ -169,10 +170,15 @@ Peepub.prototype._epubPath = function(add){
     
     // set up the whole structure
     if(!add){
-      fs.mkdirSync(dir + 'META-INF/');
-      fs.writeFileSync(dir + 'META-INF/' + 'container.xml', fs.readFileSync(templatesDir + "container.xml", "utf8"));
+      fs.mkdirSync(dir + Peepub.EPUB_META_DIR);
+      fs.writeFileSync(dir + Peepub.EPUB_META_DIR + 'container.xml', handlebars.templates[templatesBase + "container.xml"]({}), "utf8");
       fs.mkdirSync(dir + Peepub.EPUB_CONTENT_DIR);
       fs.writeFileSync(dir + 'mimetype', 'application/epub+zip');
+
+      var ff = this.getJson().fixedFormat;
+      if( !_.isUndefined(ff) ){
+        fs.writeFileSync(dir + Peepub.EPUB_META_DIR + 'com.apple.ibooks.display-options.xml', handlebars.templates[templatesBase + "com.apple.ibooks.display-options.xml"]({}), "utf8");
+      }
     }
   } 
   return dir;
@@ -585,9 +591,14 @@ Peepub.prototype.getJson = function(){
   });
 
   // fixed format required fields
-  if( !_.isUndefined(this.json.fixedFormat)
-      && (_.isUndefined(this.json.fixedFormat.w) || _.isUndefined(this.json.fixedFormat.h)) ){
+  if( !_.isUndefined(this.json.fixedFormat) ){
+    if( _.isUndefined(this.json.fixedFormat.w) || _.isUndefined(this.json.fixedFormat.h) ){
       throw "Fixed format epubs must define width and height: w,h";
+    }
+    if( !this.json.fixedFormat._loaded ){
+      this.json.css.unshift("body { width: "+parseInt(this.json.fixedFormat.w)+"px;height: "+parseInt(this.json.fixedFormat.h)+"px;margin: 0; }");
+      this.json.fixedFormat._loaded = true;
+    }
   }
   
   // modified - 2013-03-20T12:00:00Z
