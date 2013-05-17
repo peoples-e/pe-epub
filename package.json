@@ -1,7 +1,7 @@
 {
   "name": "pe-epub",
   "description": "JSON to EPUB",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "author": {
     "name": "Oliver Wise"
@@ -16,7 +16,6 @@
     "lodash": "*",
     "cheerio": "0.10.x",
     "node-zip": "1.x",
-    "async": "0.2.x",
     "mmmagic": "*"
   },
   "devDependencies": {

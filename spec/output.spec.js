@@ -1,6 +1,7 @@
 var Peepub  = require('../Peepub.js');
 var _       = require('lodash');
 var fs      = require('fs');
+
 // var cheerio = require('cheerio');
 // var path    = require('path');
 var epubJson        = require('../examples/example.json');
@@ -25,7 +26,6 @@ describe("Outputting an EPUB", function(){
     }, "it to assemble everything");
 
     runs(function(){
-      // console.log(epubFile);
       expect(fs.existsSync(epubFile)).toBe(true);
       pp.clean();
     });

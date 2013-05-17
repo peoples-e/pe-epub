@@ -4,9 +4,9 @@ var fs         = require("fs");
 var cheerio    = require('cheerio');
 var http       = require('http');
 var path       = require('path');
-var async      = require("async");
 var mmm        = require('mmmagic');
 var Magic      = mmm.Magic;
+
 
 var templatesBase    = 'templates/';
 var templatesDir     = __dirname + '/' + templatesBase;
@@ -43,53 +43,6 @@ function deleteFolderRecursive(path) {
   }
 }
 
-/**
- * Mapping function on all files in a folder and it's subfolders
- * @param dir {string} Source directory
- * @param action {Function} Mapping function in the form of (path, stats, callback), where callback is Function(result)
- * @param callback {Function} Callback fired after all files have been processed with (err, aggregatedResults)
- */
-function mapAllFiles(dir, action, callback, concurrency) {
-  var output = [], q;
-
-  // read folder and push stuff to queue
-  function readFolder(dir, next) {
-    fs.readdir(dir, function (err, files) {
-      if (err) { return next(err); }
-
-      q.push(files.map(function (file) {
-        return path.join(dir, file);
-      }));
-      next();
-    });
-  }
-
-  // create a queue object with concurrency 2
-  q = async.queue(function (filename, next) {
-    fs.stat(filename, function (err, stats) {
-      if (err) { return next(err); }
-
-      if (stats.isDirectory()) {
-        readFolder(filename, next);
-      } else {
-        action(filename, stats, function (res) {
-          if (res) {
-            output.push(res);
-          }
-          next();
-        });
-      }
-    });
-  }, concurrency || 5);
-
-  readFolder(dir, function () {
-    // on drain we're done
-    q.drain = function (err) {
-      callback(err, output);
-    };
-  });
-}
-
 
 /**
  *
@@ -122,6 +75,8 @@ Peepub = function Peepub(first, debug) {
     js      : [],
     assets  : []
   };
+
+  this.epubFiles = [];
 };
 
 Peepub.EPUB_DIR         = __dirname + '/epubs/';
@@ -172,12 +127,15 @@ Peepub.prototype._epubPath = function(add){
     if(!add){
       fs.mkdirSync(dir + Peepub.EPUB_META_DIR);
       fs.writeFileSync(dir + Peepub.EPUB_META_DIR + 'container.xml', handlebars.templates[templatesBase + "container.xml"]({}), "utf8");
+      this.epubFiles.push(dir + Peepub.EPUB_META_DIR + 'container.xml');
       fs.mkdirSync(dir + Peepub.EPUB_CONTENT_DIR);
       fs.writeFileSync(dir + 'mimetype', 'application/epub+zip');
+      this.epubFiles.push(dir + 'mimetype');
 
       var ff = this.getJson().fixedFormat;
       if( !_.isUndefined(ff) ){
         fs.writeFileSync(dir + Peepub.EPUB_META_DIR + 'com.apple.ibooks.display-options.xml', handlebars.templates[templatesBase + "com.apple.ibooks.display-options.xml"]({}), "utf8");
+        this.epubFiles.push(dir + Peepub.EPUB_META_DIR + 'com.apple.ibooks.display-options.xml');
       }
     }
   } 
@@ -357,6 +315,7 @@ Peepub.prototype._contentOpf = function(options, callback){
           var contentOpf = handlebars.templates[templatesBase + "content.opf"](json);
           fs.writeFile(that.contentOpfPath(), contentOpf, function(err){
             if(err) throw 'content.opf didnt save';
+            that.epubFiles.push(that.contentOpfPath());
             callback(contentOpf);
           });
         });
@@ -397,6 +356,8 @@ Peepub.prototype._createToc = function(callback){
   var tocHtml = handlebars.templates[templatesBase + "toc.html"](json);
   fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.html', tocHtml, function(err){
     if(err) throw 'toc.html didnt save';
+
+    that.epubFiles.push(that._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.html');
     finished_files++;
     if(finished_files === 2){
       callback();
@@ -406,6 +367,8 @@ Peepub.prototype._createToc = function(callback){
   var tocNcx = handlebars.templates[templatesBase + "toc.ncx"](json);
   fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', tocNcx, function(err){
     if(err) throw 'toc.ncx didnt save';
+
+    that.epubFiles.push(that._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.ncx');
     finished_files++;
     if(finished_files === 2){
       callback();
@@ -433,7 +396,8 @@ Peepub.prototype._getPage = function(i){
 
 // will pull it from the internet (or not) and write it
 Peepub.prototype._createFile = function(dest, source, callback){
-  
+  this.epubFiles.push(dest);
+
   // local file
   if((/^file:\/\//).test(source)){
     var file  = source.replace('file://', '');
@@ -535,39 +499,45 @@ Peepub.prototype._zip = function(callback){
   var that = this;
   var dir  = this._epubPath().slice(0,-1);
   
-  // map all files in the approot thru this function
-  mapAllFiles(dir, function (path, stats, callback) {
-      // prepare for the .addFiles function
-      callback({ 
-          name: path.replace(dir, "").substr(1), 
-          path: path 
-      });
-  }, function (err, data) {
-      // if (err) return callback(err);
-      
-      var epubPath = that._epubDir() + '/' + that.id + '.epub';
-      
-      // mimetype must be first
-      var filteredData = _.filter(data, function(fileObj){
-        if(fileObj.name === 'mimetype'){
-          zip.file(fileObj.name, fs.readFileSync(fileObj.path, 'binary'), { binary : true });
-          return false;
-        }
-        return true;
-      });
-      
-      _.each(filteredData, function(fileObj){
-        fs.readFile(fileObj.path, 'binary', function(err, data){
-          zip.file(fileObj.name, data, { binary : true });
-        });
-      });
-      
-      fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
-        that.epubFile = epubPath;
-        callback(null, epubPath);
-      });
-      
+  var epubPath = that._epubDir() + '/' + that.id + '.epub';
+  
+  // mimetype must be first
+  var filteredData = _.filter(this.epubFiles, function(fileObj){
+    if(typeof fileObj === 'string'){
+      fileObj = {
+        name : fileObj.replace(dir, "").substr(1),
+        path : fileObj
+      }
+    }
+    console.log(fileObj);
+    if(fileObj.name === 'mimetype'){
+      zip.file(fileObj.name, fs.readFileSync(fileObj.path, 'binary'), { binary : true });
+      return false;
+    }
+    return true;
   });
+  
+  var finished = 0;
+  _.each(filteredData, function(fileObj){
+    if(typeof fileObj === 'string'){
+      fileObj = {
+        name : fileObj.replace(dir, "").substr(1),
+        path : fileObj
+      }
+    }
+    fs.readFile(fileObj.path, 'binary', function(err, data){
+      zip.file(fileObj.name, data, { binary : true });
+
+      finished += 1;
+      if(finished === filteredData.length){
+        fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
+          that.epubFile = epubPath;
+          callback(null, epubPath);
+        });
+      }
+    });
+  });
+  
 };
 
 
