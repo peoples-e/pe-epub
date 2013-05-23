@@ -27,7 +27,7 @@ describe("Outputting an EPUB", function(){
 
     runs(function(){
       expect(fs.existsSync(epubFile)).toBe(true);
-      pp.clean();
+      // pp.clean();
     });
   });
   

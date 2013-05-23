@@ -1,7 +1,7 @@
 {
   "name": "pe-epub",
   "description": "JSON to EPUB",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "private": false,
   "author": {
     "name": "Oliver Wise"
@@ -10,13 +10,14 @@
     "type": "git",
     "url": "https://github.com/peoples-e/pe-epub"
   },
-  "main" : "./Peepub.js",
+  "main": "./Peepub.js",
   "dependencies": {
     "handlebars": "1.0.x",
     "lodash": "*",
     "cheerio": "0.10.x",
     "node-zip": "1.x",
-    "mmmagic": "*"
+    "mmmagic": "*",
+    "buffers": "~0.1.1"
   },
   "devDependencies": {
     "jasmine-node": "1.4.x",
