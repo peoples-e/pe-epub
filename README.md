@@ -29,10 +29,8 @@ Here's the bare minimum you need to make an epub
 	});
 
 ### TODO
-* remove file system dependencies
-* run in browser
-* handle audio tags
 * validate
+* run in browser (one day)
 
 ### Testing
 	npm install -g jasmine-node
