@@ -694,7 +694,6 @@ Peepub.prototype.create = function(options, callback){
   if(opts.epubDir) {
     this.epubDir = opts.epubDir;
   }
-  
   this._contentOpf(function() {
     if(opts.zip) {
       that._zip(function(err, epubPath) {

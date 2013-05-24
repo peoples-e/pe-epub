@@ -12,18 +12,18 @@
   },
   "main": "./Peepub.js",
   "dependencies": {
-    "handlebars": "1.0.x",
     "lodash": "*",
     "cheerio": "0.10.x",
     "node-zip": "1.x",
     "mmmagic": "*",
-    "buffers": "~0.1.1"
+    "buffers": "~0.1.1",
+    "handlebars": "~1.0.11"
   },
   "devDependencies": {
     "jasmine-node": "1.4.x",
     "grunt": "~0.4.1",
-    "grunt-contrib-handlebars": "~0.5.8",
     "grunt-browserify": "~1.0.x",
-    "grunt-jslint": "~0.2.5a"
+    "grunt-jslint": "~0.2.5a",
+    "grunt-contrib-handlebars": "~0.5.8"
   }
 }
