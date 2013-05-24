@@ -11,8 +11,8 @@ var pp,min_pp;
 describe("Page Handling", function(){
   
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson));
+    pp = new Peepub(_.cloneDeep(epubJson), true);
+    min_pp = new Peepub(_.cloneDeep(minimumEpubJson), true);
   });
   
   it("templates the titles page", function(){

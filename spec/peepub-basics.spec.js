@@ -14,8 +14,8 @@ describe("Peepub Basics", function() {
   var pp,min_pp;
   
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson));
+    pp = new Peepub(_.cloneDeep(epubJson), true);
+    min_pp = new Peepub(_.cloneDeep(minimumEpubJson), true);
   });
   
   
@@ -92,8 +92,8 @@ describe("Content OPFs", function() {
   var pp,min_pp, pp_opf;
   
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson));
+    pp = new Peepub(_.cloneDeep(epubJson), true);
+    min_pp = new Peepub(_.cloneDeep(minimumEpubJson), true);
     pp_opf = pp._contentOpf({ fetchAssets : false });
     
   });

@@ -8,7 +8,7 @@ var pp,min_pp;
 
 describe("Fixed Format EPUB", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
+    pp = new Peepub(_.cloneDeep(epubJson), true);
   });
 
   it("throws without required fixed format fields", function(){

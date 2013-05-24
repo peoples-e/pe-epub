@@ -9,7 +9,7 @@ var pp,min_pp;
 
 describe("Assets in the EPUB", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
+    pp = new Peepub(_.cloneDeep(epubJson), true);
   });
   
   it("will make css files for you", function(){

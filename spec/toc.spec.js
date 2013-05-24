@@ -10,7 +10,7 @@ var pp,min_pp;
 
 describe("TOC", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
+    pp = new Peepub(_.cloneDeep(epubJson), true);
   });
   
   it("always creates a toc.html and toc.ncx", function(){

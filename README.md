@@ -24,10 +24,8 @@ Here's the bare minimum you need to make an epub
 	var epubJson = require('your-epub.json'); // see examples/example.json for the specs
 	var myPeepub = new Peepub(epubJson);
 	
-	myPeepub.create({
-		epubDir : 'output/directory/'
-	}, function(err, epubPath){
-		console.log(epubPath); // your epub file!
+	myPeepub.create(function(err, base64epub){
+		console.log(base64epub); // your epub file!
 	});
 
 ### TODO

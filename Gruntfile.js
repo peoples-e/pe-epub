@@ -27,13 +27,27 @@ module.exports = function(grunt) {
       options : {
         errorsOnly : true
       }
+    },
+    browserify : {
+      'build/pe-epub.js' : './Peepub.js'
     }
   });
 
   grunt.loadNpmTasks('grunt-jslint');
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-handlebars');
 
   // Default task(s).
   grunt.registerTask('default', ['handlebars']);
+
+  /*
+  grunt.registerTask('default', 'default', function () {
+    var tasks = ['handlebars', 'browserify'];
+
+    // always use force when watching
+    grunt.option('force', true);
+    grunt.task.run(tasks);
+  });
+  */
 
 };

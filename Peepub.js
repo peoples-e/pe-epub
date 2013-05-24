@@ -1,13 +1,16 @@
-var _            = require('lodash');
-var handlebars   = require('handlebars');
-var fs           = require("fs");
-var cheerio      = require('cheerio');
-var http         = require('http');
-var path         = require('path');
-var mmm          = require('mmmagic');
-var Magic        = mmm.Magic;
-var Buffers = require('buffers');
+var http       = require('http');
+var path       = require('path');
 
+var _          = require('lodash');
+var handlebars = require('handlebars');
+var cheerio    = require('cheerio');
+var Buffers    = require('buffers');
+
+var JSZip      = require('./libs/jszip.js');
+
+var fs         = require("fs");
+var mmm        = require('mmmagic');
+var Magic      = mmm.Magic;
 
 var templatesBase    = 'templates/';
 var templatesDir     = __dirname + '/' + templatesBase;
@@ -123,11 +126,11 @@ Peepub.prototype._epubPath = function(add){
   // set up the whole structure
   if(!this.debug){
     if(_.isUndefined(this.buffers[dir + Peepub.EPUB_META_DIR + 'container.xml'] && !add)){
-      if(!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
-      }
-      fs.mkdirSync(dir + Peepub.EPUB_META_DIR);
-      fs.mkdirSync(dir + Peepub.EPUB_CONTENT_DIR);
+      // if(!fs.existsSync(dir)){
+      //   fs.mkdirSync(dir);
+      // }
+      // fs.mkdirSync(dir + Peepub.EPUB_META_DIR);
+      // fs.mkdirSync(dir + Peepub.EPUB_CONTENT_DIR);
 
       // this.buffers[dir + 'mimetype'] = new Buffer('application/epub+zip');
       // this.epubFiles.push(dir + 'mimetype');
@@ -140,8 +143,8 @@ Peepub.prototype._epubPath = function(add){
         this.epubFiles.push(dir + Peepub.EPUB_META_DIR + 'com.apple.ibooks.display-options.xml');
         this.buffers[dir + Peepub.EPUB_META_DIR + 'com.apple.ibooks.display-options.xml'] = new Buffer(handlebars.templates[templatesBase + "com.apple.ibooks.display-options.xml"]({}));
       }
-      return dir;
     }
+    return dir;
   }
   
   // debug
@@ -454,7 +457,9 @@ Peepub.prototype._createFile = function(dest, source, callback){
   // internet  
   } else if((/^https?:\/\//).test(source)){
     http.get(source, function(res){
-      res.pipe(fs.createWriteStream(dest));
+      if(that.debug){
+        res.pipe(fs.createWriteStream(dest));
+      }
       that.streams[dest] = Buffers();
       res.on('data', function(data){
         that.streams[dest].push(new Buffer(data));
@@ -546,7 +551,7 @@ Peepub.prototype._createPages = function(callback){
 };
 
 Peepub.prototype._zip = function(callback){
-  var zip = new require('node-zip')();
+  var zip = new JSZip();
   var that = this;
   var dir  = this._epubPath().slice(0,-1);
   
@@ -575,6 +580,24 @@ Peepub.prototype._zip = function(callback){
   }
   
   var finished = 0;
+
+  function is_finished(){
+    finished += 1;
+    if(finished === filteredData.length){
+
+      if(that.debug){
+        fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
+          that.epubFile = epubPath;
+          callback(null, epubPath);
+        });
+
+      } else {
+        callback(null, zip.generate());        
+      }
+
+    }
+  }
+
   _.each(filteredData, function(fileObj){
     if(typeof fileObj === 'string'){
       fileObj = {
@@ -586,24 +609,12 @@ Peepub.prototype._zip = function(callback){
       fs.readFile(fileObj.path, 'binary', function(err, data){
         zip.file(fileObj.name, data, { binary : true });
 
-        finished += 1;
-        if(finished === filteredData.length){
-          fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
-            that.epubFile = epubPath;
-            callback(null, epubPath);
-          });
-        }
+        is_finished();
       });
 
     } else {
       zip.file(fileObj.name, that.buffers[fileObj.path].toString('base64'), { base64 : true });
-      finished += 1;
-      if(finished === filteredData.length){
-        fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
-          that.epubFile = epubPath;
-          callback(null, epubPath);
-        });
-      }
+      is_finished();
     }
   });
   

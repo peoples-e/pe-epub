@@ -3,14 +3,13 @@ var _       = require('lodash');
 var fs      = require('fs');
 
 // var cheerio = require('cheerio');
-// var path    = require('path');
+var path    = require('path');
 var epubJson        = require('../examples/example.json');
-var minimumEpubJson = require('../examples/minimum.json');
 var pp,min_pp;
 
-describe("Outputting an EPUB", function(){
+describe("outputs a base64 epub", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
+    pp = new Peepub(_.cloneDeep(epubJson));
   });
   
   it("outputs an epub", function(){
@@ -26,8 +25,13 @@ describe("Outputting an EPUB", function(){
     }, "it to assemble everything");
 
     runs(function(){
-      expect(fs.existsSync(epubFile)).toBe(true);
-      pp.clean();
+      expect(fs.existsSync(pp._epubPath())).not.toBe(true);
+
+      var epubPath = path.normalize(__dirname + '/../epubs/test.epub');
+      fs.writeFile(epubPath, epubFile, 'base64', function(err){
+        console.log(epubPath);
+      });
+      // pp.clean();
     });
   });
   
