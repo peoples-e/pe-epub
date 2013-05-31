@@ -1,6 +1,6 @@
 {
   "title"           : "The Peoples E-Book",
-  "cover"           : "http://images.fineartamerica.com/images-medium-large/printing-press-1639-granger.jpg",
+  "cover"           : "http://thepeoplesebook.net/pe-epub/testing/printing-press.jpg",
   "url"             : "http://thepeoplesebook.net",
   "languages"        : ["en-US", "af"],
   "date"            : "2013-03-23",
@@ -23,7 +23,7 @@
   "rights"          : "This work, is distributed under the Creative Commons Attribution-Noncommercial-Share Alike License (http://creativecommons.org/licenses/by-nc-sa/3.0/us). All other uses not covered by this license require direct permission from the author.",
   "pages" : [{
     "title" : "Page 1",
-    "body" : "<p>test<img src='http://api.ning.com/files/T9LoqtopN-PL4w52C1thvJnPUOn6cGxwi25gaASf1qdU*upm*PUy8FThR74usF*lnvhIuDOmVT6v16uVPuzA1xMl9QtLosa*/Boys20reading20books.jpg'/></p>",
+    "body" : "<p>test<img src='http://thepeoplesebook.net/pe-epub/testing/test.png'/></p>",
     "toc" : true
   },{
     "title" : "Page 2",

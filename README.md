@@ -28,6 +28,18 @@ Here's the bare minimum you need to make an epub
 		console.log(base64epub); // your epub file!
 	});
 
+or...
+
+	myPeepub.create('/path/to/epub/and/fileName.epub', function(err, filePath){
+		console.log(filePath); // the same path to your epub file!
+	});
+
+or...
+
+	myPeepub.create('/path/to/epub/', function(err, filePath){
+		console.log(filePath); // the same path but we made up a file name for u
+	});
+
 ### TODO
 * validate
 * run in browser (one day)

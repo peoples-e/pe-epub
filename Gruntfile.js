@@ -36,6 +36,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jslint');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-handlebars');
+  grunt.loadNpmTasks('grunt-release');
 
   // Default task(s).
   grunt.registerTask('default', ['handlebars']);
