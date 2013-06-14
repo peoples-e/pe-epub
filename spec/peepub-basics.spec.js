@@ -38,7 +38,7 @@ describe("Peepub Basics", function() {
     });
   });
   
-  it("cretaes a meta tag for the cover image and adds it to the manifest", function(){
+  it("creates a meta tag for the cover image and adds it to the manifest", function(){
     
     var contentOpf = '';
     runs(function(){
@@ -102,7 +102,7 @@ describe("Content OPFs", function() {
     expect(pp_opf.match(epubJson.title)).not.toBeNull();
   });
   
-  it("has multiple subjects", function(){
+  it("have multiple subjects", function(){
     for(var i in epubJson.subjects){
       expect(pp_opf.match(epubJson.subjects[i])).not.toBeNull();
     }
@@ -125,6 +125,16 @@ describe("Content OPFs", function() {
     var opf = pp._contentOpf({ fetchAssets : false });
     expect(opf.match('>urn:uuid:')).toBeNull();
     expect(opf.match('>urn:isbn:')).not.toBeNull();
+    expect(opf.match('>url:')).toBeNull();
+  });
+
+  it("only ever has one identifier", function(){
+    pp.set('uuid', null);
+    pp.set('isbn', '');
+    pp.set('url', null);
+    var opf = pp._contentOpf({ fetchAssets : false });
+    expect(opf.match('>urn:uuid:')).not.toBeNull();
+    expect(opf.match('>urn:isbn:')).toBeNull();
     expect(opf.match('>url:')).toBeNull();
   });
   

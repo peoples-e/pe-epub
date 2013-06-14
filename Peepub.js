@@ -42,6 +42,10 @@ function deleteFolderRecursive(path) {
   }
 }
 
+function falseString(str){
+  return !str || str === '';
+}
+
 /**
  *
  */
@@ -95,15 +99,18 @@ Peepub.prototype._handleDefaults = function () {
   this.json.language = this.json.language || 'en-US';
 
   // identifiers - can be isbn,url,uuid in that order of preference
-  if (!this.json.isbn && !this.json.url && !this.json.uuid) {
+  if (falseString(this.json.isbn) && falseString(this.json.url) && falseString(this.json.uuid)) {
     this.json.uuid = guid();
+    this.json.url  = null;
+    this.json.isbn = null;
 
-  } else if (this.json.isbn) {
-    this.json.url = null;
+  } else if (!falseString(this.json.isbn)) {
+    this.json.url  = null;
     this.json.uuid = null;
 
-  } else if (this.json.url) {
+  } else if (!falseString(this.json.url)) {
     this.json.uuid = null;
+    this.json.url  = null;
   }
 
 // creators
