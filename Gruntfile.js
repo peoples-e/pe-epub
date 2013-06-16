@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         options : {
           node : true
         },
-            files: {
+        files: {
               "templates/templates.js": ['templates/container.xml', 'templates/content.opf','templates/page.html', 'templates/toc.html', 'templates/toc.ncx', 'templates/com.apple.ibooks.display-options.xml']
         }
       }

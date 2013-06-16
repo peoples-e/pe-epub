@@ -14,7 +14,13 @@ var Magic      = mmm.Magic;
 
 var templatesBase    = 'templates/';
 var templatesDir     = __dirname + '/' + templatesBase;
-handlebars.templates = require(templatesDir + 'templates.js');
+// handlebars.templates = require(templatesDir + 'templates.js');
+handlebars.templates = {};
+
+var tmpls = ['container.xml', 'content.opf','page.html', 'toc.html', 'toc.ncx', 'com.apple.ibooks.display-options.xml'];
+_.each(tmpls, function(tmpl){
+  handlebars.templates[templatesBase + tmpl] = handlebars.compile(fs.readFileSync(templatesDir + tmpl, 'utf8'));
+});
 
 
 // utils
@@ -85,7 +91,7 @@ Peepub = function Peepub(first, debug) {
 };
 
 Peepub.EPUB_DIR         = __dirname + '/epubs/';
-Peepub.EPUB_CONTENT_DIR = 'OEBPS/'; // this is hard coded in templates/content.opf - use handlebars if this will ever change
+Peepub.EPUB_CONTENT_DIR = 'OEBPS/'; // this is hard coded in content.opf - use handlebars if this will ever change
 Peepub.EPUB_META_DIR    = 'META-INF/'; 
 
 Peepub.prototype._handleDefaults = function () {
