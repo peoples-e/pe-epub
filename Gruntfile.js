@@ -6,6 +6,7 @@ module.exports = function(grunt) {
     handlebars : {
       compile : {
         options : {
+          node : true
         },
             files: {
               "templates/templates.js": ['templates/container.xml', 'templates/content.opf','templates/page.html', 'templates/toc.html', 'templates/toc.ncx', 'templates/com.apple.ibooks.display-options.xml']

@@ -1,3 +1,7 @@
+var glob = ('undefined' === typeof window) ? global : window,
+
+Handlebars = glob.Handlebars || require('handlebars');
+
 this["JST"] = this["JST"] || {};
 
 this["JST"]["templates/container.xml"] = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -470,3 +474,5 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 
   return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<display_options>\n    <platform name=\"*\">\n        <option name=\"fixed-layout\">true</option>\n        <option name=\"orientation-lock\">none</option>\n        <option name=\"open-to-spread\">true</option>\n    </platform>\n    <platform name=\"iphone\">\n        <option name=\"fixed-layout\">true</option>\n        <option name=\"orientation-lock\">none</option>\n        <option name=\"open-to-spread\">false</option>\n    </platform>\n</display_options>";
   });
+
+if (typeof exports === 'object' && exports) {module.exports = this["JST"];}
