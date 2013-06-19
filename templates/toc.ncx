@@ -8,7 +8,7 @@
   </docTitle>
   <navMap>{{#tocPages}}
     <navPoint id="navPoint-{{i}}" playOrder="{{i}}" class="chapter">   
-  		<navLabel><text>{{title}}</text></navLabel>
+  		<navLabel><text>{{#if toc}}{{title}}{{else}}{{../../title}}{{/if}}</text></navLabel>
 		  <content src="{{href}}"/>    
     </navPoint>  
 {{/tocPages}}</navMap>

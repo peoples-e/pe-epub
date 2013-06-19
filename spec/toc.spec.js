@@ -125,4 +125,36 @@ describe("TOC functionality", function(){
       pp.clean();
     });
   });
+
+  it("will create a toc link to the first page if you haven't put any pages in the TOC", function(){
+    var epubPath = '';
+    
+    runs(function(){
+      for(var i in pp.json.pages){
+        pp.json.pages[i].toc = false;
+      }
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var toc = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', 'utf8');
+      var $   = cheerio.load(toc);
+      
+      expect($("navPoint").length).toBe(1);
+
+      toc = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'toc.html', 'utf8');
+      $ = cheerio.load(toc);
+
+      expect($('ol li').length).toBe(1);
+      expect($('ol li a').text()).toBe(pp.json.title);
+      
+      pp.clean();
+    });
+  });
 });

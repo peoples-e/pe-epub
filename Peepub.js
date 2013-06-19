@@ -95,7 +95,7 @@ Peepub.EPUB_CONTENT_DIR = 'OEBPS/'; // this is hard coded in content.opf - use h
 Peepub.EPUB_META_DIR    = 'META-INF/'; 
 
 Peepub.prototype._handleDefaults = function () {
-
+  var that = this;
   var d = new Date();
   var m = d.getMonth() + 1;
   if (m.toString().length === 1) {
@@ -121,6 +121,7 @@ Peepub.prototype._handleDefaults = function () {
     this.json.isbn = null;
     this.json.id   = this.json.url;
   }
+
 };
 
 Peepub.prototype._epubDir = function(){
@@ -369,6 +370,11 @@ Peepub.prototype._createToc = function(callback){
   var finished_files = 0;
   
   json.tocPages = this.getTocPages();
+
+  // by default we'll make one navpoint to their first page
+  if(json.tocPages.length === 0){
+    json.tocPages.push(json.pages[0]);
+  }
   for(var i in json.tocPages){
     json.tocPages[i]['i'] = parseInt(i)+1;
   }

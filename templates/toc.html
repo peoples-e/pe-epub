@@ -10,7 +10,7 @@
 		<nav epub:type="toc">
 			<h1>{{title}}</h1>
 			<ol>{{#tocPages}}
-				<li><a href="{{href}}">{{title}}</a></li>{{/tocPages}}
+				<li><a href="{{href}}">{{#if toc}}{{title}}{{else}}{{../../title}}{{/if}}</a></li>{{/tocPages}}
 			</ol>	
 		</nav>
 	</body>

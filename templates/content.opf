@@ -2,32 +2,29 @@
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" dir="ltr" unique-identifier="bookid">
 	<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
 		<meta property="dcterms:modified">{{modified}}</meta>
-		<meta name="cover" content="cover-image" />
-		{{#languages}}<dc:language>{{.}}</dc:language>
-		{{/languages}}
-		<dc:title id="title01">{{title}}</dc:title>		
-		{{#subtitle}}<meta refines="#title01" property="title-type">{{.}}</meta>{{/subtitle}}
-		{{#isbn}}<dc:identifier id="bookid">urn:isbn:{{.}}</dc:identifier>{{/isbn}}
-		{{#uuid}}<dc:identifier id="bookid">urn:uuid:{{.}}</dc:identifier>{{/uuid}}
-		{{#url}}<dc:identifier id="bookid">url:{{.}}</dc:identifier>{{/url}}
-		{{#creators}}<dc:creator id="creator{{i}}">{{name}}</dc:creator>
+		<meta name="cover" content="cover-image" />{{#languages}}
+		<dc:language>{{.}}</dc:language>{{/languages}}
+		<dc:title id="title01">{{title}}</dc:title>{{#subtitle}}
+		<meta refines="#title01" property="title-type">{{.}}</meta>{{/subtitle}}{{#isbn}}
+		<dc:identifier id="bookid">urn:isbn:{{.}}</dc:identifier>{{/isbn}}{{#uuid}}
+		<dc:identifier id="bookid">urn:uuid:{{.}}</dc:identifier>{{/uuid}}{{#url}}
+		<dc:identifier id="bookid">url:{{.}}</dc:identifier>{{/url}}{{#creators}}
+		<dc:creator id="creator{{i}}">{{name}}</dc:creator>
 		<meta refines="#creator{{i}}" property="role" scheme="marc:relators">{{role}}</meta>
 		<meta refines="#creator{{i}}" property="file-as">{{file-as}}</meta>{{/creators}}
 		{{#contributors}}<dc:contributor id="contributor{{i}}">{{name}}</dc:contributor>
 		<meta refines="#contributor{{i}}" property="role" scheme="marc:relators">{{role}}</meta>
-		<meta refines="#contributor{{i}}" property="file-as">{{file-as}}</meta>{{/contributors}}
-    	{{#date}}<dc:date>{{date}}</dc:date>{{/date}}
-    	{{#description}}<dc:description>{{description}}</dc:description>{{/description}}
+		<meta refines="#contributor{{i}}" property="file-as">{{file-as}}</meta>{{/contributors}}{{#if date}}
+		<dc:date>{{date}}</dc:date>{{/if}}{{#if description}}
+		<dc:description>{{description}}</dc:description>{{/if}}{{#if rights}}
+		<dc:rights>{{rights}}</dc:rights>{{/if}}
     	{{#publishers}}<dc:publisher>{{.}}</dc:publisher>{{/publishers}}
-    	{{#rights}}<dc:rights>{{rights}}</dc:rights>{{/rights}}
 		{{#subjects}}<dc:subject>{{.}}</dc:subject>{{/subjects}}
 	</metadata>	
-	<manifest>
-		{{#items}}
+	<manifest>{{#items}}
 		<item {{#id}}id="{{.}}"{{/id}}{{^id}}id="asset_{{i}}"{{/id}} href="{{href}}" media-type="{{media-type}}" {{#properties}}properties="{{.}}"{{/properties}}/>{{/items}}
 	</manifest>
-	<spine toc="ncx">
-		{{#itemrefs}}<itemref idref="{{id}}"/>
-		{{/itemrefs}}
+	<spine toc="ncx">{{#itemrefs}}
+		<itemref idref="{{id}}"/>{{/itemrefs}}
 	</spine>	
 </package>
