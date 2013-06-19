@@ -105,21 +105,22 @@ Peepub.prototype._handleDefaults = function () {
   this.json.language = this.json.language || 'en-US';
 
   // identifiers - can be isbn,url,uuid in that order of preference
-  if (falseString(this.json.isbn) && falseString(this.json.url) && falseString(this.json.uuid)) {
-    this.json.uuid = guid();
+  if (falseString(this.json.isbn) && falseString(this.json.url)) {
+    this.json.uuid = this.json.uuid || guid();
     this.json.url  = null;
     this.json.isbn = null;
+    this.json.id   = this.json.uuid;
 
   } else if (!falseString(this.json.isbn)) {
     this.json.url  = null;
     this.json.uuid = null;
+    this.json.id   = this.json.isbn;
 
   } else if (!falseString(this.json.url)) {
     this.json.uuid = null;
-    this.json.url  = null;
+    this.json.isbn = null;
+    this.json.id   = this.json.url;
   }
-
-// creators
 };
 
 Peepub.prototype._epubDir = function(){
@@ -422,8 +423,8 @@ Peepub.prototype._getPage = function(i){
   // close img tags at the last minute because they get removed by cheerio
   var regex        = new RegExp('(<img[^>]+>)', 'g');
   json.body        = json.body.replace(regex, '$1</img>')
-                              .replace(/&nbsp;/g, ' ')
-                              .replace(/&shy;/g, '');
+                              .replace(/&nbsp;/g, '&#160;')
+                              .replace(/&shy;/g, '&#173;');
   
   // add links/script tags
   json.css         = this.assets.css;
@@ -527,8 +528,7 @@ Peepub.prototype._createPage = function(i, callback){
     that.json.pages[i].id            = name;
     that.json.pages[i].href          = name + '.html';
     that.json.pages[i]['media-type'] = 'application/xhtml+xml';
-    that.json.pages[i]['properties'] = 'scripted';
-    
+    // that.json.pages[i]['properties'] = 'scripted';
     
     callback(fullpath);
   });

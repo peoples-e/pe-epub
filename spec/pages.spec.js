@@ -167,7 +167,7 @@ describe("Page Handling", function(){
       expect($page.html().match(/&nbsp;/)).toBe(null);
       expect($page.html().match(/&shy;/)).toBe(null);
       
-      pp.clean();
+      // pp.clean();
     });
   });
 });

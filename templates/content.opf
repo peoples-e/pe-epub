@@ -10,19 +10,16 @@
 		{{#isbn}}<dc:identifier id="bookid">urn:isbn:{{.}}</dc:identifier>{{/isbn}}
 		{{#uuid}}<dc:identifier id="bookid">urn:uuid:{{.}}</dc:identifier>{{/uuid}}
 		{{#url}}<dc:identifier id="bookid">url:{{.}}</dc:identifier>{{/url}}
-
 		{{#creators}}<dc:creator id="creator{{i}}">{{name}}</dc:creator>
 		<meta refines="#creator{{i}}" property="role" scheme="marc:relators">{{role}}</meta>
 		<meta refines="#creator{{i}}" property="file-as">{{file-as}}</meta>{{/creators}}
-		
 		{{#contributors}}<dc:contributor id="contributor{{i}}">{{name}}</dc:contributor>
 		<meta refines="#contributor{{i}}" property="role" scheme="marc:relators">{{role}}</meta>
 		<meta refines="#contributor{{i}}" property="file-as">{{file-as}}</meta>{{/contributors}}
-			
-    	<dc:date>{{date}}</dc:date>
-    	<dc:description>{{description}}</dc:description>
+    	{{#date}}<dc:date>{{date}}</dc:date>{{/date}}
+    	{{#description}}<dc:description>{{description}}</dc:description>{{/description}}
     	{{#publishers}}<dc:publisher>{{.}}</dc:publisher>{{/publishers}}
-    	<dc:rights>{{rights}}</dc:rights>
+    	{{#rights}}<dc:rights>{{rights}}</dc:rights>{{/rights}}
 		{{#subjects}}<dc:subject>{{.}}</dc:subject>{{/subjects}}
 	</metadata>	
 	<manifest>

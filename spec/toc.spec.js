@@ -8,7 +8,7 @@ var path            = require('path');
 var pp,min_pp;
 
 
-describe("TOC", function(){
+describe("TOC functionality", function(){
   beforeEach(function(){
     pp = new Peepub(_.cloneDeep(epubJson), true);
   });
@@ -76,6 +76,28 @@ describe("TOC", function(){
       _.each(pp.getTocPages(), function(page){
         expect($("content[src='"+page.href+"']").length).toBe(1);
       });
+      pp.clean();
+    });
+  });
+
+  it("included the unique id in the toc.ncx", function(){
+    var epubPath = '';
+    
+    runs(function(){
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+  
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+  
+    runs(function(){
+      var toc = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', 'utf8');
+      var $   = cheerio.load(toc, { xmlMode : true });
+      
+      expect($("meta[content='"+pp.json.url+"']").length).toBe(1);
       pp.clean();
     });
   });
