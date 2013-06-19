@@ -133,7 +133,6 @@ Peepub.prototype._epubPath = function(add){
     
     // all additions go in the content dir
     dir += Peepub.EPUB_CONTENT_DIR + add + '/';
-
   } 
   
   // set up the whole structure
@@ -152,7 +151,6 @@ Peepub.prototype._epubPath = function(add){
     return dir;
   }
   
-  // debug
   if(!fs.existsSync(dir)){
     fs.mkdirSync(dir);
     
@@ -183,10 +181,9 @@ Peepub.prototype._fetchAssets = function(callback){
   var all_pages  = _.map(json.pages, function(page){ return page.body; }).join('');
   var $          = this._getDom(all_pages);
   var images     = ([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })); 
-  var videoSrcs = [];
+  var videoSrcs  = [];
   var audioSrcs  = [];
-  var videoCount = 0;
-  var audioCount = 0;
+
   _.each($('video'), function(video){
     if ($(video).attr('poster')) {
       images.push($(video).attr('poster'));
@@ -424,7 +421,9 @@ Peepub.prototype._getPage = function(i){
   
   // close img tags at the last minute because they get removed by cheerio
   var regex        = new RegExp('(<img[^>]+>)', 'g');
-  json.body        = json.body.replace(regex, '$1</img>');
+  json.body        = json.body.replace(regex, '$1</img>')
+                              .replace(/&nbsp;/g, ' ')
+                              .replace(/&shy;/g, '');
   
   // add links/script tags
   json.css         = this.assets.css;

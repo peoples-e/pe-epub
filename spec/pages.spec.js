@@ -147,5 +147,27 @@ describe("Page Handling", function(){
     });
   });
   
-  
+  it("removes problem webkit chars", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += '&nbsp;&shy;&nbsp&shy;';
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var firstPage  = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + pp.json.pages[0].href, 'utf8');
+      var $page      = cheerio.load(firstPage);
+      
+      expect($page.html().match(/&nbsp;/)).toBe(null);
+      expect($page.html().match(/&shy;/)).toBe(null);
+      
+      pp.clean();
+    });
+  });
 });
