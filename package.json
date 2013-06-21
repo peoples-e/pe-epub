@@ -1,7 +1,7 @@
 {
   "name": "pe-epub",
   "description": "JSON to EPUB",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": false,
   "author": {
     "name": "Oliver Wise"
