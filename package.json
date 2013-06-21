@@ -27,5 +27,5 @@
     "grunt-contrib-handlebars": "~0.5.9",
     "grunt-release": "~0.3.3"
   },
-  "license" : "MIT"
+  "license": "MIT"
 }

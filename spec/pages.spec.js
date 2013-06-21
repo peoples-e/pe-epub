@@ -150,7 +150,7 @@ describe("Page Handling", function(){
   it("removes problem webkit chars", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += '&nbsp;&shy;&nbsp&shy;';
+      pp.json.pages[0].body += '&nbsp;&shy;&nbsp;&shy;';
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });

@@ -7,6 +7,7 @@ var cheerio    = require('cheerio');
 var Buffers    = require('buffers');
 
 var JSZip      = require('./libs/jszip.js');
+var htmlEntities = require('./libs/html-entities');
 
 var fs         = require("fs");
 var mmm        = require('mmmagic');
@@ -21,7 +22,6 @@ var tmpls = ['container.xml', 'content.opf','page.html', 'toc.html', 'toc.ncx', 
 _.each(tmpls, function(tmpl){
   handlebars.templates[templatesBase + tmpl] = handlebars.compile(fs.readFileSync(templatesDir + tmpl, 'utf8'));
 });
-
 
 // utils
 function s4() {
@@ -427,11 +427,10 @@ Peepub.prototype._getPage = function(i){
   var json         = epubJson.pages[i];
   
   // close img tags at the last minute because they get removed by cheerio
-  var regex        = new RegExp('(<img[^>]+>)', 'g');
-  json.body        = json.body.replace(regex, '$1</img>')
-                              .replace(/&nbsp;/g, '&#160;')
-                              .replace(/&shy;/g, '&#173;');
-  
+  json.body = json.body.replace(new RegExp('(<img[^>]+>)', 'g'), '$1</img>');
+  // convert to entity number
+  json.body = htmlEntities.convert(json.body);
+
   // add links/script tags
   json.css         = this.assets.css;
   json.js          = this.assets.js;
