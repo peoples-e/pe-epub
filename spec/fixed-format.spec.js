@@ -33,6 +33,8 @@ it("puts a viewport tag in all the pages", function(){
     var $page      = cheerio.load(firstPage, { xmlMode : true });
 
     expect($page("meta[name=viewport]").length).toBe(1);
+    var regex = new RegExp('width=' + pp.json.fixedFormat.w);
+    expect(regex.test($page("meta[name=viewport]").attr('content'))).toBe(true);
     pp.clean();
   });
 });
