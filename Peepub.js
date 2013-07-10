@@ -424,12 +424,6 @@ Peepub.prototype._getPage = function(i){
   var epubJson     = this.getJson();
   var json         = epubJson.pages[i];
 
-  // read local files for pe-eps
-  if((/^file:\/\//).test(json.body)){
-    var $ = cheerio.load(fs.readFileSync(json.body.replace('file://', ''), 'utf8'));
-    json.body = $('body').html();
-  }
-  
   // close img tags at the last minute because they get removed by cheerio
   json.body = json.body.replace(new RegExp('(<img[^>]+>)', 'g'), '$1</img>');
   // convert to entity number
@@ -653,6 +647,18 @@ Peepub.prototype.getJson = function(){
       this.json.css.unshift("body { width: "+parseInt(this.json.fixedFormat.w)+"px;height: "+parseInt(this.json.fixedFormat.h)+"px;margin: 0; }");
       this.json.fixedFormat._loaded = true;
     }
+  }
+
+  // local pages
+  if( !this._checkedForLocalPages ){
+    this._checkedForLocalPages = true;
+    _.each(that.json.pages, function(page, i){
+      // read local files for pe-eps
+      if((/^file:\/\//).test(page.body)){
+        var $ = cheerio.load(fs.readFileSync(page.body.replace('file://', ''), 'utf8'));
+        that.json.pages[i].body = $('body').html();
+      }
+    });
   }
   
   // modified - 2013-03-20T12:00:00Z
