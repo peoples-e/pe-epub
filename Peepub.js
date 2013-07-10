@@ -352,9 +352,7 @@ Peepub.prototype._contentOpf = function(options, callback){
             });
           }
         });
-        
       });
-
     });
     
   // this is used for testing
@@ -425,6 +423,12 @@ Peepub.prototype._getPage = function(i){
   var that         = this;
   var epubJson     = this.getJson();
   var json         = epubJson.pages[i];
+
+  // read local files for pe-eps
+  if((/^file:\/\//).test(json.body)){
+    var $ = cheerio.load(fs.readFileSync(json.body.replace('file://', ''), 'utf8'));
+    json.body = $('body').html();
+  }
   
   // close img tags at the last minute because they get removed by cheerio
   json.body = json.body.replace(new RegExp('(<img[^>]+>)', 'g'), '$1</img>');

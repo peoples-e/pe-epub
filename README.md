@@ -40,9 +40,20 @@ or...
 		console.log(filePath); // the same path but we made up a file name for u
 	});
 
-### TODO
-* validate
-* run in browser (one day)
+### Features
+
+Use local assets rather than from the web
+
+ 	<img src="file:///path/to/image.jpg" />
+
+Import local HTML files for the body of a page
+
+    {
+		"pages" : [{
+			"title" : "My Local Page",
+			"body"  : "file:///path/to/local/page.html"
+		}]
+	}
 
 ### Testing
 	npm install -g jasmine-node
