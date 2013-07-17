@@ -85,12 +85,37 @@ describe("Page Handling", function(){
       var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
       var $ = cheerio.load(contentopf);
       _.each(pp.getJson().pages, function(page){
+        if(page.hidden) return; // skip hidden pages
+
         var itemPage = $('spine itemref[idref='+page.id+']');
         expect(itemPage.length).toBe(1);
       });
       
       pp.clean();
     });
+  });
+
+  it("will hide pages from the spine", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
+      var $          = cheerio.load(contentopf);
+      
+      var pagesThatArentHidden = _.filter(pp.json.pages, function(page){ return _.isUndefined(page.hidden) || !page.hidden; });
+        expect($("spine itemref").length).toBe(pagesThatArentHidden.length);
+    });
+      
+    pp.clean();
   });
   
   it("puts a css/link tag in every page", function(){
@@ -167,7 +192,7 @@ describe("Page Handling", function(){
       expect($page.html().match(/&nbsp;/)).toBe(null);
       expect($page.html().match(/&shy;/)).toBe(null);
       
-      // pp.clean();
+      pp.clean();
     });
   });
 
@@ -199,5 +224,7 @@ describe("Page Handling", function(){
       min_pp.clean();
     });
   });
+
+  
 
 });

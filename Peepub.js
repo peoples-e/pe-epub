@@ -335,7 +335,7 @@ Peepub.prototype._contentOpf = function(options, callback){
       that._createPages(function(){
         
         json.items = json.items.concat(that.json.pages);  // add pages to the manifest
-        json.itemrefs = that.json.pages;                  // add pages to the spine
+        json.itemrefs = _.filter(that.json.pages, function(page){ return _.isUndefined(page.hidden) || !page.hidden; });  // add pages to the spine
         
         that._createToc(function(){
           var contentOpf = handlebars.templates[templatesBase + "content.opf"](json);
