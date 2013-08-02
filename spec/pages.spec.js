@@ -85,12 +85,10 @@ describe("Page Handling", function(){
       var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
       var $ = cheerio.load(contentopf);
       _.each(pp.getJson().pages, function(page){
-        if(page.hidden) return; // skip hidden pages
 
         var itemPage = $('spine itemref[idref='+page.id+']');
         expect(itemPage.length).toBe(1);
       });
-      
       pp.clean();
     });
   });
@@ -111,8 +109,10 @@ describe("Page Handling", function(){
       var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
       var $          = cheerio.load(contentopf);
       
-      var pagesThatArentHidden = _.filter(pp.json.pages, function(page){ return _.isUndefined(page.hidden) || !page.hidden; });
-        expect($("spine itemref").length).toBe(pagesThatArentHidden.length);
+      var pagesThatAreHidden = _.filter(pp.json.pages, function(page){ return page.hidden; });
+      pagesThatAreHidden.forEach(function(page){
+        expect($('spine itemref[idref='+page.id+']').attr('linear')).toBe('no');
+      });
     });
       
     pp.clean();

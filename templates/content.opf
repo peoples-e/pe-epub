@@ -25,6 +25,6 @@
 		<item {{#id}}id="{{.}}"{{/id}}{{^id}}id="asset_{{i}}"{{/id}} href="{{href}}" media-type="{{media-type}}" {{#properties}}properties="{{.}}"{{/properties}}/>{{/items}}
 	</manifest>
 	<spine toc="ncx">{{#itemrefs}}
-		<itemref idref="{{id}}"/>{{/itemrefs}}
+		<itemref idref="{{id}}" {{#hidden}}linear="no"{{/hidden}}/>{{/itemrefs}}
 	</spine>	
 </package>
