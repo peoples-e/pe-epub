@@ -173,6 +173,16 @@ describe("Content OPFs", function() {
     var $ = cheerio.load(opf);
     expect($('dc:creator').length).toBe(0);
   });
+
+  it("wont modify the original", function(){
+    var minEpubJson = _.cloneDeep(minimumEpubJson);
+    minEpubJson.publishers = [''];
+    min_pp = new Peepub(minEpubJson, true);
+    var opf = min_pp._contentOpf({ fetchAssets : false });
+    var $ = cheerio.load(opf);
+    expect($('dc:publisher').length).toBe(0);
+    expect(minEpubJson.publishers).toBeDefined();
+  });
   
 
 });

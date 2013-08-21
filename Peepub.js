@@ -61,7 +61,7 @@ Peepub = function Peepub(first, debug) {
 
   this.json = {};
   if (first) {
-    this.json = first;
+    this.json = _.cloneDeep(first);
   }
   if (debug) {
     this.debug = debug;
