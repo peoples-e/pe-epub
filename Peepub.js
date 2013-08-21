@@ -631,8 +631,11 @@ Peepub.prototype.getJson = function(){
     if(that.json[field] && !that.json[field + 's']){
       that.json[field + 's'] = [that.json[field]];
     }
+    if(that.json[field + 's'] && that.json[field + 's'].length === 1 && that.json[field + 's'][0] === ''){
+      delete that.json[field + 's'];
+    }
   });
-  
+
   // required fields
   _.each(this.requiredFields, function(field){
     if(!that.json[field]) throw "Missing a required field: " + field;

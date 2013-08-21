@@ -4,17 +4,17 @@
 		<meta property="dcterms:modified">{{modified}}</meta>
 		<meta name="cover" content="cover-image" />{{#languages}}
 		<dc:language>{{.}}</dc:language>{{/languages}}
-		<dc:title id="title01">{{title}}</dc:title>{{#subtitle}}
-		<meta refines="#title01" property="title-type">{{.}}</meta>{{/subtitle}}{{#isbn}}
+		<dc:title id="title01">{{title}}</dc:title>{{#if subtitle}}
+		<meta refines="#title01" property="title-type">{{subtitle}}</meta>{{/if}}{{#isbn}}
 		<dc:identifier id="bookid">urn:isbn:{{.}}</dc:identifier>{{/isbn}}{{#uuid}}
 		<dc:identifier id="bookid">urn:uuid:{{.}}</dc:identifier>{{/uuid}}{{#url}}
-		<dc:identifier id="bookid">url:{{.}}</dc:identifier>{{/url}}{{#creators}}
+		<dc:identifier id="bookid">url:{{.}}</dc:identifier>{{/url}}{{#creators}}{{#if name}}
 		<dc:creator id="creator{{i}}">{{name}}</dc:creator>
 		<meta refines="#creator{{i}}" property="role" scheme="marc:relators">{{role}}</meta>
-		<meta refines="#creator{{i}}" property="file-as">{{file-as}}</meta>{{/creators}}
-		{{#contributors}}<dc:contributor id="contributor{{i}}">{{name}}</dc:contributor>
+		<meta refines="#creator{{i}}" property="file-as">{{file-as}}</meta>{{/if}}{{/creators}}{{#contributors}}{{#if name}}
+		<dc:contributor id="contributor{{i}}">{{name}}</dc:contributor>
 		<meta refines="#contributor{{i}}" property="role" scheme="marc:relators">{{role}}</meta>
-		<meta refines="#contributor{{i}}" property="file-as">{{file-as}}</meta>{{/contributors}}{{#if date}}
+		<meta refines="#contributor{{i}}" property="file-as">{{file-as}}</meta>{{/if}}{{/contributors}}{{#if date}}
 		<dc:date>{{date}}</dc:date>{{/if}}{{#if description}}
 		<dc:description>{{description}}</dc:description>{{/if}}{{#if rights}}
 		<dc:rights>{{rights}}</dc:rights>{{/if}}

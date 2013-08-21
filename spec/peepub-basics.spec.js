@@ -166,6 +166,13 @@ describe("Content OPFs", function() {
     expect(modifiedDate.getMonth()).toEqual(now.getMonth());
     expect(modifiedDate.getYear()).toEqual(now.getYear());
   });
+
+  it("doesnt have blank creators", function(){
+    min_pp.set('creators', [{ name : '', role : 'aut', 'file-as' : '' }]);
+    var opf = min_pp._contentOpf({ fetchAssets : false });
+    var $ = cheerio.load(opf);
+    expect($('dc:creator').length).toBe(0);
+  });
   
 
 });
