@@ -7,6 +7,30 @@ var epubJson        = require('../examples/example.json');
 var minimumEpubJson = require('../examples/minimum.json');
 var pp,min_pp;
 
+describe("First Asset Test", function(){
+  beforeEach(function(){
+    pp = new Peepub(_.cloneDeep(epubJson), true);
+  });
+  
+  it("will make css files for you", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'styles')).toBe(true);
+      pp.clean();
+    });
+  });
+});
+
 describe("Assets in the EPUB", function(){
   beforeEach(function(){
     pp = new Peepub(_.cloneDeep(epubJson), true);

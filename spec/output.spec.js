@@ -68,4 +68,24 @@ describe("Outputting an EPUB", function(){
     });
   });
 
+  it("create() returns a promise", function(){
+    var epubFile = '';
+    var whereToPutIt = __dirname + '/assets/';
+    runs(function(){
+      pp.create(whereToPutIt)
+        .then(function(file){
+          epubFile = file;
+        });
+    });
+
+    waitsFor(function(){
+      return epubFile !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(epubFile)).toBe(true);
+      pp.clean();
+    });
+  });
+
 });

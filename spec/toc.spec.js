@@ -97,7 +97,7 @@ describe("TOC functionality", function(){
       var toc = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', 'utf8');
       var $   = cheerio.load(toc, { xmlMode : true });
       
-      expect($("meta[content='"+pp.json.url+"']").length).toBe(1);
+      expect($("meta[content*='"+pp.json.url+"']").length).toBe(1);
       pp.clean();
     });
   });

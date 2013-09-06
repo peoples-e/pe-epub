@@ -23,21 +23,23 @@ Here's the bare minimum you need to make an epub
 	var Peepub   = require('pe-epub');
 	var epubJson = require('your-epub.json'); // see examples/example.json for the specs
 	var myPeepub = new Peepub(epubJson);
+
+	myPeepub.create('/path/to/epub/and/fileName.epub')
+		.then(function(filePath){
+			console.log(filePath); // the same path to your epub file!
+		});
 	
-	myPeepub.create(function(err, base64epub){
+or...
+
+	myPeepub.create('/path/to/epub/')
+		.then(function(filePath){
+			console.log(filePath); // the same path but we made up a file name for u
+		});
+
+or, for the day we run in browsers...
+
+	myPeepub.create().then(function(base64epub){
 		console.log(base64epub); // your epub file!
-	});
-
-or...
-
-	myPeepub.create('/path/to/epub/and/fileName.epub', function(err, filePath){
-		console.log(filePath); // the same path to your epub file!
-	});
-
-or...
-
-	myPeepub.create('/path/to/epub/', function(err, filePath){
-		console.log(filePath); // the same path but we made up a file name for u
 	});
 
 ### Features
