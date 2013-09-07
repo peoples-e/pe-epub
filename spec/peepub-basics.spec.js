@@ -23,7 +23,7 @@ describe("Peepub Basics", function() {
     
     var contentOpf = '';
     runs(function(){
-      pp._contentOpf(function(copf){
+      pp._contentOpf().then(function(copf){
         contentOpf = copf;
       })
     });
@@ -42,7 +42,7 @@ describe("Peepub Basics", function() {
     
     var contentOpf = '';
     runs(function(){
-      pp._contentOpf(function(copf){
+      pp._contentOpf().then(function(copf){
         contentOpf = copf;
       })
     });

@@ -52,6 +52,9 @@ function falseString(str){
   return !str || str === '';
 }
 
+var readFile = Q.denodeify(fs.readFile);
+
+
 /**
  *
  */
@@ -283,13 +286,9 @@ Peepub.prototype._getDom = function(str){
 
 
 Peepub.prototype._contentOpf = function(options, callback){
-  var that     = this;
-  var json     = this.getJson();
-  
-  if(typeof options === 'function'){
-    var callback = options;
-    options = null;
-  }
+  var that = this;
+  var d    = Q.defer();
+  var json = this.getJson();
   
   var opts = _.extend({
     fetchAssets : true
@@ -320,18 +319,22 @@ Peepub.prototype._contentOpf = function(options, callback){
             if(!that.useFs){
               that.buffers[that.contentOpfPath()] = new Buffer(contentOpf);
               that.epubFiles.push(that.contentOpfPath());
-              callback(contentOpf);
+              d.resolve(contentOpf);
 
             } else {
               fs.writeFile(that.contentOpfPath(), contentOpf, function(err){
-                if(err) throw 'content.opf didnt save';
-                that.epubFiles.push(that.contentOpfPath());
-                callback(contentOpf);
+                if(err){
+                  d.reject('content.opf didnt save');
+                } else {
+                  that.epubFiles.push(that.contentOpfPath());
+                  d.resolve(contentOpf);
+                }
               });
             }
           });
         });
       });
+    return d.promise;
     
   // this is used for testing
   // synchronously returns basic contentOpf
@@ -549,7 +552,8 @@ Peepub.prototype._createPages = function(callback){
 };
 
 Peepub.prototype._zip = function(callback){
-  var zip = new JSZip();
+  var zip  = new JSZip();
+  var d    = Q.defer();
   var that = this;
   var dir  = this._epubPath().slice(0,-1);
   
@@ -718,26 +722,30 @@ Peepub.prototype.create = function(options, callback){
   if(opts.epubDir) {
     this.epubDir = opts.epubDir;
   }
-  this._contentOpf(function() {
-    if(opts.zip) {
-      that._zip(function(err, epubPath) {
+  this._contentOpf()
+    .then(function() {
+      if(opts.zip) {
+        that._zip(function(err, epubPath) {
+          if(callback){
+            callback(err, epubPath);
+          }
+          if(err){
+            d.reject(err);
+          } else {
+            d.resolve(epubPath);
+          }
+        });
+        
+      } else {
         if(callback){
-          callback(err, epubPath);
+          callback(null, that._epubPath());
         }
-        if(err){
-          d.reject(err);
-        } else {
-          d.resolve(epubPath);
-        }
-      });
-      
-    } else {
-      if(callback){
-        callback(null, that._epubPath());
+        d.resolve(that._epubPath());
       }
-      d.resolve(that._epubPath());
-    }
-  });
+    })
+    .fail(function(err){
+      d.reject(err);
+    });
   return d.promise;
 };
 
