@@ -225,6 +225,31 @@ describe("Page Handling", function(){
     });
   });
 
+  it("handles name attr in a tags smartly", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<a name='ptotheetothepub'></a>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var firstPage  = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + pp.json.pages[0].href, 'utf8');
+      var $page      = cheerio.load(firstPage);
+      expect($page("a[name=ptotheetothepub]").length).toBe(0); // removes them
+      expect($page("a[id=ptotheetothepub]").length).toBe(1);   // makes it the id if there isn't one already
+      var reg = new RegExp('(<a[^>]+)></a>');
+      expect(reg.test(firstPage)).toBe(false);   // empty tags become self-closing or they show up wrong in eReaders
+      
+      pp.clean();
+    });
+  });
+
   
 
 });
