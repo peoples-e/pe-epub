@@ -406,7 +406,7 @@ Peepub.prototype._getPage = function(i){
   var json         = epubJson.pages[i];
 
   // close img tags at the last minute because they get removed by cheerio
-  json.body = json.body.replace(new RegExp('(<img[^>]+>)', 'g'), '$1</img>');
+  // json.body = json.body.replace(new RegExp('(<img[^>]+>)', 'g'), '$1</img>'); // invalid for mobi
 
   // Text anchors should be self-closing tags <a id="bespoke" /> 
   // otherwise show up as regular, but non-functioning links in e-readers.
