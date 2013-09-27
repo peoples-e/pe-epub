@@ -404,9 +404,11 @@ Peepub.prototype._getPage = function(i){
   var that         = this;
   var epubJson     = this.getJson();
   var json         = epubJson.pages[i];
+  var matches;
 
-  // close img tags at the last minute because they get removed by cheerio
-  // json.body = json.body.replace(new RegExp('(<img[^>]+>)', 'g'), '$1</img>'); // invalid for mobi
+  // self-close img tags at the last minute because they get removed by cheerio
+  // valid html5 but not epub
+  json.body = json.body.replace(new RegExp('(<img[^>]+)>', 'g'), '$1/>'); 
 
   // Text anchors should be self-closing tags <a id="bespoke" /> 
   // otherwise show up as regular, but non-functioning links in e-readers.
@@ -546,7 +548,7 @@ Peepub.prototype._createPage = function(i, callback){
       that.json.pages[i].id            = name;
       that.json.pages[i].href          = name + '.html';
       that.json.pages[i]['media-type'] = 'application/xhtml+xml';
-      // that.json.pages[i]['properties'] = 'scripted';
+      that.json.pages[i]['properties'] = 'scripted';
       
       callback(fullpath);
 

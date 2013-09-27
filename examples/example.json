@@ -5,7 +5,7 @@
   "languages"        : ["en-US", "af"],
   "date"            : "2013-03-23",
   "subtitle"        : "We read ebooks for breakfast",
-  "css"             : ["body { background-color: #fff }", "http://thepeoplesebook.net/style/launch.css"],
+  "css"             : ["body { background-color: #fff }", "http://thepeoplesebook.net/css/launch.css"],
   "js"              : "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
   "creator"         : {
     "name"    : "Greg Albers",
@@ -13,9 +13,9 @@
     "file-as" : "Albers, Greg"
   },
   "contributors"    : [{
-    "name"    : "Carina Johnson",
+    "name"    : "Oliver Wise",
     "role"    : "vdg",
-    "file-as" : "Johnson, Carina"
+    "file-as" : "Wise, Oliver"
   }],
   "publisher"       : "Hol Art Books",
   "description"     : "A sample e-book, using the EPUB 3.0 spec, for the creation of The People's E-Book",
