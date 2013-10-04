@@ -138,10 +138,7 @@ describe("Content OPFs", function() {
     expect(opf.match('>url:')).toBeNull();
   });
   
-  it("throws if there it's missing required fields", function(){
-    pp.set('title', null);
-    expect(pp.getJson).toThrow();
-  });
+
   
   it("will be nice and handle plurals for you", function(){
     pp.set('subject', epubJson.subjects[0]);

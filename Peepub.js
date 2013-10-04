@@ -99,12 +99,19 @@ Peepub.EPUB_META_DIR    = 'META-INF/';
 
 Peepub.prototype._handleDefaults = function () {
   var that = this;
-  var d = new Date();
-  var m = d.getMonth() + 1;
+  var d    = new Date(this.json.date || Date.now());
+  if(isNaN(d.getMonth())){
+    d = new Date;
+  }
+  var m    = d.getMonth() + 1;
+  var day  = d.getDate();
   if (m.toString().length === 1) {
     m = '0' + m;
   }
-  this.json.date = this.json.date || d.getFullYear() + '-' + m + '-' + d.getDate();
+  if (day.toString().length === 1) {
+    day = '0' + day;
+  }
+  this.json.date = d.getFullYear() + '-' + m + '-' + day;
   this.json.language = this.json.language || 'en-US';
 
   // identifiers - can be isbn,url,uuid in that order of preference
