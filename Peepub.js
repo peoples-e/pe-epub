@@ -365,15 +365,15 @@ Peepub.prototype._createToc = function(callback){
     json.tocPages[i]['i'] = parseInt(i)+1;
   }
   json.items.push({
-      id : 'toc',
-      href : 'toc.html',
-      'media-type' : 'application/xhtml+xml',
-      properties : 'nav'
+      id            : 'toc',
+      href          : 'toc.html',
+      'media-type'  : 'application/xhtml+xml',
+      properties    : 'nav'
     });
   json.items.push({
-      id : 'ncx',
-      href : 'toc.ncx',
-      'media-type' : 'application/x-dtbncx+xml'
+      id            : 'ncx',
+      href          : 'toc.ncx',
+      'media-type'  : 'application/x-dtbncx+xml'
     });
   json.css = this.assets.css;
   
@@ -555,7 +555,9 @@ Peepub.prototype._createPage = function(i, callback){
       that.json.pages[i].id            = name;
       that.json.pages[i].href          = name + '.html';
       that.json.pages[i]['media-type'] = 'application/xhtml+xml';
-      that.json.pages[i]['properties'] = 'scripted';
+      if(that.json.js.length > 0){
+        that.json.pages[i]['properties'] = 'scripted';
+      }
       
       callback(fullpath);
 

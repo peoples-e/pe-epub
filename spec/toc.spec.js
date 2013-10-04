@@ -80,6 +80,42 @@ describe("TOC functionality", function(){
     });
   });
 
+  it("in the toc.ncx, meta id tag needs to reflect whether there is an isbn", function(){
+    var epubPath = '', epub2Path = '';
+    var pp2 = new Peepub(_.cloneDeep(epubJson), true);
+    
+    runs(function(){
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+
+      pp2.json.isbn = 'peoples_e';
+      pp2.create()
+      .then(function(epath){
+        epub2Path = pp2._epubPath();
+      })
+      .done();
+    });
+  
+    waitsFor(function(){
+      return epubPath !== '' && epub2Path !== '';
+    }, "it to assemble everything");
+  
+    runs(function(){
+      var toc = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', 'utf8');
+      var $   = cheerio.load(toc);
+
+      var toc2 = fs.readFileSync(epub2Path + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', 'utf8');
+      var $2   = cheerio.load(toc2);
+
+      expect($("meta[name='dtb:uid']").attr('content').match(/urn:uuid/)).not.toBeNull();
+      expect($2("meta[name='dtb:uid']").attr('content').match(/urn:isbn/)).not.toBeNull();
+
+      pp.clean();
+      pp2.clean();
+    });
+  });
+
   it("included the unique id in the toc.ncx", function(){
     var epubPath = '';
     
@@ -101,6 +137,7 @@ describe("TOC functionality", function(){
       pp.clean();
     });
   });
+
   
   it("adds the tocs files to the manifest", function(){
     var epubPath = '';

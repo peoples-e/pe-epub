@@ -3,8 +3,8 @@ var _       = require('lodash');
 var fs      = require('fs');
 
 // var cheerio = require('cheerio');
-var path    = require('path');
-var epubJson        = require('../examples/example.json');
+var path     = require('path');
+var epubJson = require('../examples/example.json');
 var pp,min_pp;
 
 describe("outputs a base64 epub", function(){
@@ -29,7 +29,6 @@ describe("outputs a base64 epub", function(){
 
       var epubPath = path.normalize(__dirname + '/../epubs/test.epub');
       fs.writeFile(epubPath, epubFile, 'base64', function(err){
-        console.log(epubPath);
       });
       // pp.clean();
     });
