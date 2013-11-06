@@ -1,6 +1,6 @@
 {
   "title" : "The Peoples E-Book",
-  "cover" : "http://chestofbooks.com/crafts/scientific-american/sup3/images/FIG-1-MARINONI-S-ROTARY-PRINTING-PRESS.png",
+  "cover" : "http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/printing-press.jpg",
   "pages" : [{
     "title" : "PE-EPUB",
     "body" : "Making ebooks better."

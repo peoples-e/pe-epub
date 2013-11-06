@@ -250,6 +250,50 @@ describe("Page Handling", function(){
     });
   });
 
+  it("does not strip self-closing <hr>s ", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<img src='http://thepeoplesebook.net/pe-epub/testing/test.png' />words words words. <hr/>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var firstPage  = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + pp.json.pages[0].href, 'utf8');
+      var $page      = cheerio.load(firstPage);
+
+      expect(firstPage.match(/<hr>/)).toBeNull();
+      pp.clean();
+    });
+  });
+
+  it("does not strip self-closing <br>s ", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<img src='http://thepeoplesebook.net/pe-epub/testing/test.png' />words words words. <br/>";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var firstPage  = fs.readFileSync(epubPath + Peepub.EPUB_CONTENT_DIR + pp.json.pages[0].href, 'utf8');
+      var $page      = cheerio.load(firstPage);
+
+      expect(firstPage.match(/<br>/)).toBeNull();
+      pp.clean();
+    });
+  });
+
   
 
 });

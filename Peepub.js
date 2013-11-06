@@ -52,6 +52,27 @@ function falseString(str){
   return !str || str === '';
 }
 
+function cheerioCleanup(body){
+  // self-close img tags at the last minute because they get removed by cheerio
+  // valid html5 but not epub
+  body = body.replace(new RegExp('(<img[^>]+)>', 'g'), '$1/>'); 
+
+  // Text anchors should be self-closing tags <a id="bespoke" /> 
+  // otherwise show up as regular, but non-functioning links in e-readers.
+  body = body.replace(new RegExp('(<a[^>]+)></a>', 'g'), '$1/>');
+
+  // self close hr
+  body = body.replace(new RegExp('<hr>', 'g'), '<hr />'); 
+
+  // self close br
+  body = body.replace(new RegExp('<br>', 'g'), '<br />'); 
+
+  // convert to entity number
+  body = htmlEntities.convert(body);
+
+  return body;
+}
+
 var readFile = Q.denodeify(fs.readFile);
 
 
@@ -418,16 +439,7 @@ Peepub.prototype._getPage = function(i){
   var json         = epubJson.pages[i];
   var matches;
 
-  // self-close img tags at the last minute because they get removed by cheerio
-  // valid html5 but not epub
-  json.body = json.body.replace(new RegExp('(<img[^>]+)>', 'g'), '$1/>'); 
-
-  // Text anchors should be self-closing tags <a id="bespoke" /> 
-  // otherwise show up as regular, but non-functioning links in e-readers.
-  json.body = json.body.replace(new RegExp('(<a[^>]+)></a>', 'g'), '$1/>');
-
-  // convert to entity number
-  json.body = htmlEntities.convert(json.body);
+  json.body = cheerioCleanup(json.body);
 
   // add links/script tags
   json.css         = this.assets.css;

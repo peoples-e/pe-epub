@@ -1,11 +1,11 @@
 {
   "title"           : "The Peoples E-Book",
-  "cover"           : "http://thepeoplesebook.net/pe-epub/testing/printing-press.jpg",
+  "cover"           : "http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/printing-press.jpg",
   "url"             : "http://thepeoplesebook.net",
   "languages"        : ["en-US", "af"],
   "date"            : "2013-03-23",
   "subtitle"        : "We read ebooks for breakfast",
-  "css"             : ["body { background-color: #fff }", "http://thepeoplesebook.net/css/launch.css"],
+  "css"             : ["body { background-color: #fff }", "http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.css"],
   "js"              : "http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",
   "creator"         : {
     "name"    : "Greg Albers",
@@ -23,7 +23,7 @@
   "rights"          : "This work, is distributed under the Creative Commons Attribution-Noncommercial-Share Alike License (http://creativecommons.org/licenses/by-nc-sa/3.0/us). All other uses not covered by this license require direct permission from the author.",
   "pages" : [{
       "title" : "Page 1",
-      "body" : "<p>test<img src='http://thepeoplesebook.net/pe-epub/testing/test.png'/></p>",
+      "body" : "<p>test<img src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/printing-press.jpg'/></p>",
       "toc" : true
     }
     ,{
