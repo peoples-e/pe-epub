@@ -439,7 +439,7 @@ Peepub.prototype._getPage = function(i){
   var json         = epubJson.pages[i];
   var matches;
 
-  json.body = cheerioCleanup(json.body);
+  json.body = cheerioCleanup(json.body || '');
 
   // add links/script tags
   json.css         = this.assets.css;
