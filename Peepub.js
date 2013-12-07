@@ -1,5 +1,6 @@
-var http       = require('http');
-var path       = require('path');
+var http = require('http');
+var path = require('path');
+var fs   = require("fs");
 
 var _            = require('lodash');
 var handlebars   = require('handlebars');
@@ -8,10 +9,6 @@ var Buffers      = require('buffers');
 var Q            = require('q');
 var JSZip        = require('./libs/jszip.js');
 var htmlEntities = require('./libs/html-entities');
-
-var fs         = require("fs");
-var mmm        = require('mmmagic');
-var Magic      = mmm.Magic;
 
 var templatesBase    = 'templates/';
 var templatesDir     = __dirname + '/' + templatesBase;
@@ -449,66 +446,74 @@ Peepub.prototype._getPage = function(i){
   
 };
 
+/**
+ * An Array of functions that determine the type of asset and then get them
+ * - the goal is to make this extensible
+ *
+ * @param obj => {
+ *          dest : // destination,
+ *        source : // where's it coming from,
+ *        peepub : // the Peepub instance,
+ *             d : // the deferred to resolve or reject
+ *        }
+ * @return bool whether this test caught it
+ */
+Peepub._createFileFuncs = [
+  // pull from the internet
+  function(obj){
+    if((/^https?:\/\//).test(obj.source)){
+
+      http.get(obj.source, function(res){
+        if(obj.peepub.useFs){
+          res.pipe(fs.createWriteStream(obj.dest));
+        }
+        obj.peepub.streams[obj.dest] = Buffers();
+        res.on('data', function(data){
+          obj.peepub.streams[obj.dest].push(new Buffer(data));
+        });
+        res.on('end', function(err){
+          if (err){
+            return obj.d.reject(err);
+          }
+          obj.peepub.buffers[obj.dest] = obj.peepub.streams[obj.dest].toBuffer();
+          obj.d.resolve(res);
+          delete obj.peepub.streams[obj.dest];
+        });
+      });
+      return true;
+    }
+  }
+];
+
 // will pull it from the internet (or not) and write it
-Peepub.prototype._createFile = function(dest, source, callback){
+Peepub.prototype._createFile = function(dest, source){
   var that = this;
   var d    = Q.defer();
   this.epubFiles.push(dest);
 
-  // local file
-  if((/^file:\/\//).test(source)){
-    var file  = source.replace('file://', '');
-    var magic = new Magic(mmm.MAGIC_MIME_TYPE);
-    
-    magic.detectFile(file, function(err, mime_type) {
-      if (err){
-        return d.reject(err);
-      }
-      
-      fs.writeFile(dest, fs.readFileSync(file), function(err){
-        if (err){
-          return d.reject(err);
-        }
-        d.resolve({ headers : { 'content-type' : mime_type }, source : source });
-        // callback(err, { headers : { 'content-type' : mime_type }}); // mimic http response
-      });
-    });
-  
-  // internet  
-  } else if((/^https?:\/\//).test(source)){
-    http.get(source, function(res){
-      if(that.useFs){
-        res.pipe(fs.createWriteStream(dest));
-      }
-      that.streams[dest] = Buffers();
-      res.on('data', function(data){
-        that.streams[dest].push(new Buffer(data));
-      });
-      res.on('end', function(err){
-        if (err){
-          return d.reject(err);
-        }
-        that.buffers[dest] = that.streams[dest].toBuffer();
-        d.resolve(res);
-        // callback(err, res);
-        delete that.streams[dest];
-      });
-    });
-    
-  // string
-  } else {
+  // is one of the Peepub.createFileFuncs taking care of this asset?
+  if( ! _.some( Peepub._createFileFuncs, function(func) {
+          if( func({
+              source : source,
+                dest : dest,
+                   d : d,
+              peepub : that
+              }) 
+            ) return true;
+        }) 
+    ){
+
+    // nope - it's a string
     if(this.useFs){
       fs.writeFile(dest, source, function(err){
         if (err){
           return d.reject(err);
         }
         return d.resolve({ source : source });
-        // callback(err);
       });
     } else {
       this.buffers[dest] = new Buffer(source);
       d.resolve({ source : source });
-      // callback();
     }
   }
   return d.promise;

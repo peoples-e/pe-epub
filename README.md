@@ -1,6 +1,6 @@
 # pe-epub
 
-makes epubs better.  
+"pee pub" makes epubs better.  
 
 Our goal is to make it as easy as possible to output a valid epub. 
 
@@ -15,6 +15,10 @@ Here's the bare minimum you need to make an epub
 			"body" : "Making ebooks better."
 		}]
 	}
+
+pe-epub assumes your assets (images, video, audio, stylesheets, javascript) are online so it will get them for you.  Text assets like pages, css and js can also be passed in as strings
+
+If you'd like to use local assets see the [pe-epub-fs](https://github.com/peoples-e/pe-epub-fs) module
 	
 ## Install	
 	npm install pe-pub
@@ -42,20 +46,6 @@ or, for the day we run in browsers...
 		console.log(base64epub); // your epub file!
 	});
 
-### Features
-
-Use local assets rather than from the web
-
- 	<img src="file:///path/to/image.jpg" />
-
-Import local HTML files for the body of a page
-
-    {
-		"pages" : [{
-			"title" : "My Local Page",
-			"body"  : "file:///path/to/local/page.html"
-		}]
-	}
 
 ### Testing
 	npm install -g jasmine-node

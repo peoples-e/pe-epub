@@ -14,8 +14,6 @@
   "dependencies": {
     "lodash": "*",
     "cheerio": "0.10.x",
-    "node-zip": "1.x",
-    "mmmagic": "*",
     "buffers": "~0.1.1",
     "handlebars": "~1.0.11",
     "q": "~0.9.7"
