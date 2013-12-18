@@ -171,6 +171,18 @@ describe("Content OPFs", function() {
     expect($('dc:creator').length).toBe(0);
   });
 
+  it("doesnt have blank file-as", function(){
+    min_pp.set('creators', [{ name : 'owise1', role : 'aut', 'file-as' : '' }]);
+    var opf = min_pp._contentOpf({ fetchAssets : false });
+    var $ = cheerio.load(opf);
+    expect($('meta[property="file-as"]').length).toBe(0);
+
+    min_pp.set('contributor', [{ name : 'owise1', role : 'aut', 'file-as' : '' }]);
+    opf = min_pp._contentOpf({ fetchAssets : false });
+    $ = cheerio.load(opf);
+    expect($('meta[property="file-as"]').length).toBe(0);
+  });
+
   it("wont modify the original", function(){
     var minEpubJson = _.cloneDeep(minimumEpubJson);
     minEpubJson.publishers = [''];
