@@ -1,18 +1,15 @@
-var http  = require('http');
-var https = require('https');
 var path  = require('path');
 var fs    = require("fs");
 
 var _            = require('lodash');
 var handlebars   = require('handlebars');
 var cheerio      = require('cheerio');
-var Buffers      = require('buffers');
 var Q            = require('q');
-var JSZip        = require('./libs/jszip.js');
-var htmlEntities = require('./libs/html-entities');
+var JSZip        = require('./src/libs/jszip.js');
+var htmlEntities = require('./src/libs/html-entities');
 
 var templatesBase    = 'templates/';
-var templatesDir     = __dirname + '/' + templatesBase;
+var templatesDir     = __dirname + '/src/' + templatesBase;
 // handlebars.templates = require(templatesDir + 'templates.js');
 handlebars.templates = {};
 
@@ -30,21 +27,6 @@ function guid() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
-function deleteFolderRecursive(path) {
-  var files = [];
-  if (fs.existsSync(path)) {
-    files = fs.readdirSync(path);
-    files.forEach(function (file, index) {
-      var curPath = path + "/" + file;
-      if (fs.statSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(path);
-  }
-}
 
 function falseString(str){
   return !str || str === '';
@@ -474,52 +456,6 @@ Peepub.prototype._getPage = function(i){
   
 };
 
-/**
- * An Array of functions that determine the type of asset and then get them
- * - the goal is to make this extensible
- *
- * @param obj => {
- *          dest : // destination,
- *        source : // where's it coming from,
- *        peepub : // the Peepub instance,
- *             d : // the deferred to resolve or reject
- *        }
- * @return bool whether this test caught it
- */
-Peepub._createFileFuncs = [
-  // pull from the internet
-  function(obj){
-    if((/^https?:\/\//).test(obj.source)){
-
-      ((/^https:\/\//).test(obj.source) ? https : http)
-      .get(obj.source, function(res){
-        if(obj.peepub.useFs){
-          res.pipe(fs.createWriteStream(obj.dest));
-        }
-        obj.peepub.streams[obj.dest] = Buffers();
-        res.on('data', function(data){
-          obj.peepub.streams[obj.dest].push(new Buffer(data));
-        });
-        res.on('end', function(err){
-          if (err){
-            return obj.d.reject(err);
-          }
-          obj.peepub.buffers[obj.dest] = obj.peepub.streams[obj.dest].toBuffer();
-          obj.d.resolve(res);
-          delete obj.peepub.streams[obj.dest];
-        });
-      });
-      return true;
-    }
-  }
-];
-
-/**
- * Don't manipulate the array directly
- */
-Peepub.addCreateFileFunc = function(func){
-  Peepub._createFileFuncs.push(func);
-}
 
 // will pull it from the internet (or not) and write it
 Peepub.prototype._createFile = function(dest, source){
@@ -745,142 +681,8 @@ Peepub.prototype._zip = function(callback){
   
 };
 
+Peepub = require('./src/static.js')(Peepub);
+Peepub = require('./src/public.js')(Peepub);
 
-// PUBLIC //
-
-Peepub.prototype.getJson = function(){
-  var that = this;
-  this._handleDefaults();
-  
-  // we want these to be arrays, but we'll be nice to people
-  var oneToMany = ['subject', 'publisher', 'creator', 'contributor', 'language'];
-  _.each(oneToMany, function _oneToMany(field){
-    if(that.json[field] && !that.json[field + 's']){
-      that.json[field + 's'] = [that.json[field]];
-    }
-    if(that.json[field + 's'] && that.json[field + 's'].length === 1 && that.json[field + 's'][0] === ''){
-      delete that.json[field + 's'];
-    }
-  });
-
-  // required fields
-  _.each(this.requiredFields, function(field){
-    if(!that.json[field]) throw "Missing a required field: " + field;
-  });
-
-  // fixed format required fields
-  if( !_.isUndefined(this.json.fixedFormat) ){
-    if( _.isUndefined(this.json.fixedFormat.w) || _.isUndefined(this.json.fixedFormat.h) ){
-      throw "Fixed format epubs must define width and height: w,h";
-    }
-    if( !this.json.fixedFormat._loaded ){
-      this.json.css.unshift("body { width: "+parseInt(this.json.fixedFormat.w)+"px;height: "+parseInt(this.json.fixedFormat.h)+"px;margin: 0; }");
-      this.json.fixedFormat._loaded = true;
-    }
-  }
-
-  // local pages
-  if( !this._checkedForLocalPages ){
-    this._checkedForLocalPages = true;
-    _.each(that.json.pages, function(page, i){
-      // read local files for pe-eps
-      if((/^file:\/\//).test(page.body)){
-        var $ = cheerio.load(fs.readFileSync(page.body.replace('file://', ''), 'utf8'));
-        that.json.pages[i].body = $('body').html();
-      }
-    });
-  }
-  
-  // modified - 2013-03-20T12:00:00Z
-  var utc = new Date((new Date).toUTCString());
-  function _pad(a){
-    return a.toString().length === 1 ? '0' + a.toString() : a;
-  }
-  this.json.modified =  utc.getFullYear() + '-' + 
-                        _pad(utc.getMonth() + 1) + '-' +
-                        _pad(utc.getDate()) + 'T' + 
-                        _pad(utc.getHours() + 1) + ':' + 
-                        _pad(utc.getMinutes() + 1) + ':' + 
-                        _pad(utc.getSeconds() + 1) + 'Z';
-
-
-  return this.json;
-};
-
-Peepub.prototype.set = function(key, val){
-  this.json[key] = val;
-};
-
-Peepub.prototype.clean = function(){
-  deleteFolderRecursive(this._epubPath());
-  if (fs.existsSync(this.epubFile)) {
-    fs.unlinkSync(this.epubFile);
-  }
-};
-
-Peepub.prototype.create = function(options, callback){
-  var that = this;
-  var d    = Q.defer();
-  
-  if (arguments.length === 1 && typeof options === 'function'){
-    callback = options;
-    options = {};
-
-  } else if(typeof options === 'string') {
-    var tmp = {};
-    if(options.match(/\.epub$/)){
-      tmp.epubDir = path.dirname(options) + '/';
-      this.fileName = path.basename(options);
-    } else {
-      tmp.epubDir = options.replace(/\/$/, '') + '/';
-    }
-    this.useFs = true;
-    options = tmp;
-  }
-  
-  var opts = _.extend({
-    epubDir : null,
-    zip : true
-  }, options);
-
-
-  if(opts.epubDir) {
-    this.epubDir = opts.epubDir;
-  }
-  this._contentOpf()
-  .then(function() {
-    if(opts.zip) {
-      that._zip(function(err, epubPath) {
-        if(callback){
-          callback(err, epubPath);
-        }
-        if(err){
-          d.reject(err);
-        } else {
-          d.resolve(epubPath);
-        }
-      });
-      
-    } else {
-      if(callback){
-        callback(null, that._epubPath());
-      }
-      d.resolve(that._epubPath());
-    }
-  })
-  .fail(function(err){
-    d.reject(err);
-  }).done();
-  return d.promise;
-};
-
-Peepub.prototype.contentOpfPath = function(){
-  if(!this.id) throw "This epub has not been created yet";
-  return this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'content.opf';
-};
-
-Peepub.prototype.getTocPages = function(){
-  return _.filter(this.getJson().pages, function(page){ return page.toc; });
-};
 
 module.exports = Peepub;

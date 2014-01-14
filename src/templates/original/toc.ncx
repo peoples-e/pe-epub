@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+ 
+ <head>
+    <meta name="dtb:uid" content="9781234567890"/>
+ </head>
+ 
+ <docTitle>
+    <text>{{title}}</text>
+ </docTitle>
+
+<navMap>
+   	{{#tocPages}}
+	<navPoint id="navPoint-{{i}}" playOrder="{{i}}" class="chapter">   
+   		<navLabel><text>{{title}}</text></navLabel>
+        <content src="{{href}}"/>    
+	</navPoint>  
+   	{{/tocPages}}
+</navMap>
+
+</ncx>
+
+<!-- Created with The People's E-Book at http://thepeoplesebook.net -->
