@@ -484,8 +484,8 @@ Peepub._createFileFuncs = [
   function(obj){
     if((/^https?:\/\//).test(obj.source)){
 
-      var transferModule = (/^https:\/\//).test(obj.source) ? https : http;
-      transferModule.get(obj.source, function(res){
+      ((/^https:\/\//).test(obj.source) ? https : http)
+      .get(obj.source, function(res){
         if(obj.peepub.useFs){
           res.pipe(fs.createWriteStream(obj.dest));
         }
@@ -506,6 +506,13 @@ Peepub._createFileFuncs = [
     }
   }
 ];
+
+/**
+ * Don't manipulate the array directly
+ */
+Peepub.addCreateFileFunc = function(func){
+  Peepub._createFileFuncs.push(func);
+}
 
 // will pull it from the internet (or not) and write it
 Peepub.prototype._createFile = function(dest, source){
