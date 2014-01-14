@@ -266,61 +266,68 @@ Peepub.prototype._fetchAssets = function(){
     var filePath = that._epubPath('assets') + fileName;
     return that._createFile(filePath, src)
             .then(function(res){
-              var asset = {
-                         src : src,
-                'media-type' : res.headers['content-type'],
-                        href : 'assets/' + fileName,
-                         _id : guid()
-              };
-              if(src === json.cover){
-                asset.properties = 'cover-image';
-                asset.id = 'cover-image';
+              if(res.headers){
+                var asset = {
+                           src : src,
+                  'media-type' : res.headers['content-type'],
+                          href : 'assets/' + fileName,
+                           _id : guid()
+                };
+                if(src === json.cover){
+                  asset.properties = 'cover-image';
+                  asset.id = 'cover-image';
+                }
+                that.assets.assets.push(asset);
+
+              } else { // this wasnt a proper image, video or audio file
+                fs.unlink(filePath);
+
               }
-              that.assets.assets.push(asset);
               return Q.fcall(function () { return true;  });
             });
   });
 
   Q.all(assetPromises)
-    .then(function(){
-      var cssPromises = _.map(json.css, function(css, i){
-        var filePath = that._epubPath('styles') + 'css_' + i + '.css';
-        return that._createFile(filePath, css)
-                .then(function(res){
-                  var asset = {
-                             src : css,
-                    'media-type' : 'text/css',
-                            href : 'styles/' + path.basename(filePath),
-                             _id : guid(),
-                             id  : 'css_' + i
-                  };
-                  that.assets.css.unshift(asset);
-                  return Q.fcall(function () { return true;  });
-                });
-      });
-      return Q.all(cssPromises);
-    })
-    .then(function(){
-      var jsPromises = _.map(json.js, function(js, i){
-        var filePath = that._epubPath('scripts') + 'js_' + i + '.js';
-        return that._createFile(filePath, js)
-                .then(function(res){
-                  var asset = {
-                             src : js,
-                    'media-type' : 'text/javascript',
-                            href : 'scripts/' + path.basename(filePath),
-                             _id : guid(),
-                             id  : 'js_' + i
-                  };
-                  that.assets.js.unshift(asset);
-                  return Q.fcall(function () { return true;  });
-                });
-      });
-      return Q.all(jsPromises);
-    })
-    .then(function(){
-      d.resolve(that.assets.assets.concat(that.assets.css).concat(that.assets.js));
-    }, d.reject);
+  .then(function(){
+    var cssPromises = _.map(json.css, function(css, i){
+      var filePath = that._epubPath('styles') + 'css_' + i + '.css';
+      return that._createFile(filePath, css)
+              .then(function(res){
+                var asset = {
+                           src : css,
+                  'media-type' : 'text/css',
+                          href : 'styles/' + path.basename(filePath),
+                           _id : guid(),
+                           id  : 'css_' + i
+                };
+                that.assets.css.unshift(asset);
+                return Q.fcall(function () { return true;  });
+              });
+    });
+    return Q.all(cssPromises);
+  })
+  .then(function(){
+    var jsPromises = _.map(json.js, function(js, i){
+      var filePath = that._epubPath('scripts') + 'js_' + i + '.js';
+      return that._createFile(filePath, js)
+              .then(function(res){
+                var asset = {
+                           src : js,
+                  'media-type' : 'text/javascript',
+                          href : 'scripts/' + path.basename(filePath),
+                           _id : guid(),
+                           id  : 'js_' + i
+                };
+                that.assets.js.unshift(asset);
+                return Q.fcall(function () { return true;  });
+              });
+    });
+    return Q.all(jsPromises);
+  })
+  .then(function(){
+    d.resolve(that.assets.assets.concat(that.assets.css).concat(that.assets.js));
+  })
+  .fail(d.reject);
   return d.promise;
 };
 
