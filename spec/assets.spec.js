@@ -125,11 +125,29 @@ describe("Assets in the EPUB", function(){
       var $ = cheerio.load(contentopf);
       
       expect($("manifest item[href*='printing-press.jpg']").length).toBe(1);
-      // _.each(pp.assets.js, function(js){
-      //   var itemJs = $('manifest item[id='+js.id+']');
-      //   expect(itemJs.length).toBe(1);
-      //   expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + js.href)).toBe(true);
-      // });
+      
+      pp.clean();
+    });
+  });
+
+  it("can handle https", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.cover = pp.json.cover.replace('http', 'https');  // this page has an image in it
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      var contentopf = fs.readFileSync(pp.contentOpfPath(), 'utf8');
+      var $ = cheerio.load(contentopf);
+      
+      expect($("manifest item[href*='printing-press.jpg']").length).toBe(1);
       
       pp.clean();
     });

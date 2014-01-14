@@ -1,6 +1,7 @@
-var http = require('http');
-var path = require('path');
-var fs   = require("fs");
+var http  = require('http');
+var https = require('https');
+var path  = require('path');
+var fs    = require("fs");
 
 var _            = require('lodash');
 var handlebars   = require('handlebars');
@@ -241,14 +242,34 @@ Peepub.prototype._fetchAssets = function(){
   });
   audioSrcs = _.uniq(audioSrcs);
 
-  var assetPromises = _.map(_.union(videoSrcs, audioSrcs, images), function(src){
-    var filePath = that._epubPath('assets') + path.basename(src);
+  var allAssets = [];
+  _.each(_.union(videoSrcs, audioSrcs, images), function(src){
+
+    // Does this asset file name already exist?
+    // we're trying to keep the orig file name to make the epub contents more accessible 
+    var fileName = path.basename(src);
+    var hrefI = 1;
+    while(_.pluck(allAssets, 'fileName').indexOf(fileName) > -1){
+      fileName = path.basename(src, path.extname(src)) + '_' + hrefI + path.extname(src);
+      hrefI++;
+    }
+    allAssets.push({
+      src : src, 
+      fileName : fileName
+    });
+  });
+
+  var assetPromises = _.map(allAssets, function(assetObj){
+    var src      = assetObj.src;
+    var fileName = assetObj.fileName;
+
+    var filePath = that._epubPath('assets') + fileName;
     return that._createFile(filePath, src)
             .then(function(res){
               var asset = {
                          src : src,
                 'media-type' : res.headers['content-type'],
-                        href : 'assets/' + path.basename(src),
+                        href : 'assets/' + fileName,
                          _id : guid()
               };
               if(src === json.cover){
@@ -463,7 +484,8 @@ Peepub._createFileFuncs = [
   function(obj){
     if((/^https?:\/\//).test(obj.source)){
 
-      http.get(obj.source, function(res){
+      var transferModule = (/^https:\/\//).test(obj.source) ? https : http;
+      transferModule.get(obj.source, function(res){
         if(obj.peepub.useFs){
           res.pipe(fs.createWriteStream(obj.dest));
         }
