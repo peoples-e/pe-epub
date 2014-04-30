@@ -73,14 +73,14 @@ describe("Outputting an EPUB", function(){
     var whereToPutIt = __dirname + '/assets/';
     runs(function(){
       pp.create(whereToPutIt)
-        .then(function(file){
-          epubFile = file;
-        });
+      .then(function(file){
+        epubFile = file;
+      });
     });
 
     waitsFor(function(){
       return epubFile !== '';
-    }, "it to assemble everything");
+    }, "it to assemble everything", 10000);
 
     runs(function(){
       expect(fs.existsSync(epubFile)).toBe(true);

@@ -73,8 +73,6 @@ describe("Peepub Basics", function() {
 
     runs(function(){
       expect(fs.existsSync(epubPath)).toBe(true);
-      expect(fs.existsSync(epubPath + 'mimetype')).toBe(true);
-      expect(fs.readFileSync(epubPath + 'mimetype', 'utf8')).toEqual('application/epub+zip');
       expect(fs.existsSync(epubPath + 'META-INF/')).toBe(true);
       expect(fs.existsSync(epubPath + 'META-INF/container.xml')).toBe(true);
       pp.clean();
