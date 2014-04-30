@@ -1,3 +1,4 @@
 epubs
 src/templates/original
 node_modules
+spec/assets/big-book
