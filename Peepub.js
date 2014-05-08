@@ -7,7 +7,7 @@ var cheerio      = require('cheerio');
 var Q            = require('q');
 var JSZip        = require('./src/libs/jszip.js');
 var archiver     = require('archiver');
-var htmlEntities = require('./src/libs/html-entities');
+var utils        = require('./src/utils.js');
 
 var templatesBase    = 'templates/';
 var templatesDir     = __dirname + '/src/' + templatesBase;
@@ -19,40 +19,6 @@ _.each(tmpls, function(tmpl){
   handlebars.templates[templatesBase + tmpl] = handlebars.compile(fs.readFileSync(templatesDir + tmpl, 'utf8'));
 });
 
-// utils
-function s4() {
-  return (Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1));
-}
-
-function guid() {
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-}
-
-
-function falseString(str){
-  return !str || str === '';
-}
-
-function cheerioCleanup(body){
-  // self-close img tags at the last minute because they get removed by cheerio
-  // valid html5 but not epub
-  body = body.replace(new RegExp('(<img[^>]+)>', 'g'), '$1/>'); 
-
-  // Text anchors should be self-closing tags <a id="bespoke" /> 
-  // otherwise show up as regular, but non-functioning links in e-readers.
-  body = body.replace(new RegExp('(<a[^>]+)></a>', 'g'), '$1/>');
-
-  // self close hr
-  body = body.replace(new RegExp('<hr>', 'g'), '<hr />'); 
-
-  // self close br
-  body = body.replace(new RegExp('<br>', 'g'), '<br />'); 
-
-  // convert to entity number
-  body = htmlEntities.convert(body);
-
-  return body;
-}
 
 var readFile = Q.denodeify(fs.readFile);
 
@@ -73,7 +39,7 @@ Peepub = function Peepub(first, debug) {
     this.useFs = true;
   }
 
-  this.id             = guid();
+  this.id             = utils.guid();
   this.requiredFields = ['title', 'cover']; // we'll take care of publish date and uuid
   this.epubFiles      = [];
   this.streams        = {};
@@ -117,18 +83,18 @@ Peepub.prototype._handleDefaults = function () {
   this.json.language = this.json.language || 'en-US';
 
   // identifiers - can be isbn,url,uuid in that order of preference
-  if (falseString(this.json.isbn) && falseString(this.json.url)) {
-    this.json.uuid = this.json.uuid || guid();
+  if (utils.falseString(this.json.isbn) && utils.falseString(this.json.url)) {
+    this.json.uuid = this.json.uuid || utils.guid();
     this.json.url  = null;
     this.json.isbn = null;
     this.json.id   = this.json.uuid;
 
-  } else if (!falseString(this.json.isbn)) {
+  } else if (!utils.falseString(this.json.isbn)) {
     this.json.url  = null;
     this.json.uuid = null;
     this.json.id   = this.json.isbn;
 
-  } else if (!falseString(this.json.url)) {
+  } else if (!utils.falseString(this.json.url)) {
     this.json.uuid = null;
     this.json.isbn = null;
     this.json.id   = this.json.url;
@@ -255,7 +221,7 @@ Peepub.prototype._fetchAssets = function(){
                            src : src,
                   'media-type' : res.headers['content-type'],
                           href : 'assets/' + fileName,
-                           _id : guid()
+                           _id : utils.guid()
                 };
                 if(src === json.cover){
                   asset.properties = 'cover-image';
@@ -281,7 +247,7 @@ Peepub.prototype._fetchAssets = function(){
                            src : css,
                   'media-type' : 'text/css',
                           href : 'styles/' + path.basename(filePath),
-                           _id : guid(),
+                           _id : utils.guid(),
                            id  : 'css_' + i
                 };
                 that.assets.css.unshift(asset);
@@ -299,7 +265,7 @@ Peepub.prototype._fetchAssets = function(){
                            src : js,
                   'media-type' : 'text/javascript',
                           href : 'scripts/' + path.basename(filePath),
-                           _id : guid(),
+                           _id : utils.guid(),
                            id  : 'js_' + i
                 };
                 that.assets.js.unshift(asset);
@@ -317,7 +283,7 @@ Peepub.prototype._fetchAssets = function(){
 
 Peepub.prototype._getDom = function(str){
   var that = this;
-  var uuid = guid();
+  var uuid = utils.guid();
   return cheerio.load("<div id='"+uuid+"'>" + str + '</div>', { xmlMode: true });
 };
 
@@ -448,7 +414,7 @@ Peepub.prototype._getPage = function(i){
   var json         = epubJson.pages[i];
   var matches;
 
-  json.body = cheerioCleanup(json.body || '');
+  json.body = utils.cheerioCleanup(json.body || '');
 
   // add links/script tags
   json.css         = this.assets.css;
@@ -595,6 +561,7 @@ Peepub.prototype._zip = function(callback){
     return this._zipFs(callback);
   }
 
+  // one day in the browser
   var zip  = new JSZip();
   var d    = Q.defer();
   var that = this;
@@ -602,42 +569,15 @@ Peepub.prototype._zip = function(callback){
   
   var epubPath = that.fileName ? that._epubDir() + that.fileName  : that._epubDir() + that.id + '.epub';
 
-  // mimetype must be first
-  if(this.useFs){
-    var filteredData = _.filter(this.epubFiles, function(fileObj){
-      if(typeof fileObj === 'string'){
-        fileObj = {
-          name : fileObj.replace(dir, "").substr(1),
-          path : fileObj
-        }
-      }
-      if(fileObj.name === 'mimetype'){
-        zip.file(fileObj.name, fs.readFileSync(fileObj.path, 'binary'), { binary : true });
-        return false;
-      }
-      return true;
-    });
-    
-  } else {
-    var buff = new Buffer('application/epub+zip');
-    zip.file('mimetype', buff.toString('base64'), { base64 : true });
-    var filteredData = this.epubFiles;
-  }
+  var buff = new Buffer('application/epub+zip');
+  zip.file('mimetype', buff.toString('base64'), { base64 : true });
+  var filteredData = this.epubFiles;
   
   var finished = 0;
   function is_finished(){
     finished += 1;
     if(finished === filteredData.length){
-
-      if(that.useFs){
-        fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
-          that.epubFile = epubPath;
-          callback(null, epubPath);
-        });
-
-      } else {
         callback(null, zip.generate());        
-      }
     }
   }
 
@@ -660,46 +600,6 @@ Peepub.prototype._zip = function(callback){
       is_finished();
     }
   });
-
-  // var filteredDataPromises = _.map(filteredData, function(fileObj){
-  //   if(typeof fileObj === 'string'){
-  //     fileObj = {
-  //       name : fileObj.replace(dir, "").substr(1),
-  //       path : fileObj
-  //     }
-  //   }
-  //   if(_.isUndefined(that.buffers[fileObj.path])){
-  //     console.log(fileObj.path);
-  //     return Q.nfcall(fs.readFile, fileObj.path, 'binary').then(function(data){
-  //       console.log('hi');
-  //       zip.file(fileObj.name, data, { binary : true });
-  //       return Q.fcall(function () { return true;  });
-
-  //     }, function(err){
-  //       console.log(err);
-  //     });
-
-  //   } else {
-  //     zip.file(fileObj.name, that.buffers[fileObj.path].toString('base64'), { base64 : true });
-  //     return Q.fcall(function () { return true;  });
-
-  //   }
-  // });
-
-  // Q.all(filteredDataPromises)
-  //   .then(function(){
-  //     if(that.useFs){
-  //       fs.writeFile(epubPath, zip.generate({base64:false}), 'binary', function(err){
-  //         that.epubFile = epubPath;
-  //         d.resolve(epubPath);
-  //       });
-
-  //     } else {
-  //       d.resolve(zip.generate());        
-  //     }
-  //   }).done();
-  // return d.promise;
-  
 };
 
 Peepub.prototype._zipFs = function(callback){
