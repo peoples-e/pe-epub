@@ -652,5 +652,4 @@ Peepub.prototype._zipFs = function(callback){
 Peepub = require('./src/static.js')(Peepub);
 Peepub = require('./src/public.js')(Peepub);
 
-
 module.exports = Peepub;

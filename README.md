@@ -2,7 +2,7 @@
 
 "pee pub" makes epubs better.  
 
-Our goal is to make it as easy as possible to output a valid epub. 
+Our goal is to make it as easy as possible to output a valid epub. It's used in production over at [The People's E-Book](http://thepeoplesebook.net)
 
 ## JSON > EPUB
 Here's the bare minimum you need to make an epub
