@@ -9,18 +9,29 @@ var JSZip        = require('./src/libs/jszip.js');
 var archiver     = require('archiver');
 var utils        = require('./src/utils.js');
 
+var readFile = Q.denodeify(fs.readFile);
+
 var templatesBase    = 'templates/';
 var templatesDir     = __dirname + '/src/' + templatesBase;
 // handlebars.templates = require(templatesDir + 'templates.js');
 handlebars.templates = {};
 
 var tmpls = ['container.xml', 'content.opf','page.html', 'toc.html', 'toc.ncx', 'com.apple.ibooks.display-options.xml'];
-_.each(tmpls, function(tmpl){
-  handlebars.templates[templatesBase + tmpl] = handlebars.compile(fs.readFileSync(templatesDir + tmpl, 'utf8'));
-});
 
+function setupTemplates(){
+  return Q.all(tmpls.map(function(tmpl){
+    return readFile(templatesDir + tmpl, 'utf8')
+    .then(function(tmplContent){
+      handlebars.templates[templatesBase + tmpl] = handlebars.compile(tmplContent);
+    });
+  }));
+}
 
-var readFile = Q.denodeify(fs.readFile);
+function setupTemplatesSync(){
+  _.each(tmpls, function(tmpl){
+    handlebars.templates[templatesBase + tmpl] = handlebars.compile(fs.readFileSync(templatesDir + tmpl, 'utf8'));
+  });
+}
 
 
 /**
@@ -298,7 +309,8 @@ Peepub.prototype._contentOpf = function(options, callback){
   }, options);
   
   if(opts.fetchAssets){
-    Q.fcall(function () {
+    setupTemplates()
+    .then(function () {
       json = that.getJson();
       return that._fetchAssets();
     })
@@ -347,6 +359,7 @@ Peepub.prototype._contentOpf = function(options, callback){
   // this is used for testing
   // synchronously returns basic contentOpf
   } else {
+    setupTemplatesSync();
     return handlebars.templates[templatesBase + "content.opf"](that.getJson());
   }
 };
