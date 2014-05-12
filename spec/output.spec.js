@@ -2,33 +2,19 @@ var Peepub  = require('../Peepub.js');
 var _       = require('lodash');
 var fs      = require('fs');
 
-// var cheerio = require('cheerio');
-// var path    = require('path');
-var epubJson        = require('../examples/example.json');
-var minimumEpubJson = require('../examples/minimum.json');
+var helpers = require('./helpers.js');
 var pp,min_pp;
 
 describe("Outputting an EPUB", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson));
+    helpers.start();
+    pp = helpers.getFull();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
   
-  it("create() by default outputs an epub in base64", function(){
-    var epubFile = '';
-    runs(function(){
-      pp.create(function(err, file){
-        epubFile = file;
-      })
-    });
-
-    waitsFor(function(){
-      return epubFile !== '';
-    }, "it to assemble everything");
-
-    runs(function(){
-      expect(epubFile.length > 1000).toBe(true);
-    });
-  });
   
   it("if you give create() a file name and path it will put the epub there", function(){
     var epubFile = '';

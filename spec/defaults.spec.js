@@ -1,18 +1,22 @@
-var Peepub  = require('../Peepub.js');
+var Peepub   = require('../Peepub.js');
 var _       = require('lodash');
 var fs      = require('fs');
 var cheerio = require('cheerio');
 var path    = require('path');
+var helpers = require('./helpers.js');
 
 describe("Pepub Defaults ", function() {
   
-  var epubJson        = require('../examples/example.json');
-  var minimumEpubJson = require('../examples/minimum.json');
   var pp,min_pp;
-  
+
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson), true);
+      helpers.start();
+      pp = helpers.getFull();
+      min_pp = helpers.getMin();
+    });
+
+  afterEach(function(){
+    helpers.stop();
   });
 
   it("throw if there it's missing required fields", function(){

@@ -1,15 +1,20 @@
-var Peepub          = require('../Peepub.js');
+var Peepub                   = require('../Peepub.js');
 var _               = require('lodash');
 var fs              = require('fs');
 var cheerio         = require('cheerio');
 var path            = require('path');
-var epubJson        = require('../examples/example.json');
-var minimumEpubJson = require('../examples/minimum.json');
+var helpers         = require('./helpers.js');
+
 var pp,min_pp;
 
 describe("First Asset Test", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
+    helpers.start();
+    pp = helpers.getFull();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
   
   it("will make css files for you", function(){
@@ -33,7 +38,12 @@ describe("First Asset Test", function(){
 
 describe("Assets in the EPUB", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
+    helpers.start();
+    pp = helpers.getFull();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
 
   it("will make css files for you", function(){
@@ -130,7 +140,7 @@ describe("Assets in the EPUB", function(){
     });
   });
 
-  it("can handle https", function(){
+  xit("can handle https", function(){
     var epubPath = '';
     runs(function(){
       pp.json.cover = pp.json.cover.replace('http', 'https');  // this page has an image in it
@@ -213,7 +223,7 @@ describe("Assets in the EPUB", function(){
   it("handles video tag assets", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video poster='http://placekitten.com/600/800' controls><source src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.mp4' type='video/mp4'></video>";
+      pp.json.pages[0].body += "<video poster='http://localhost:3344/test.jpg' controls><source src='http://localhost:3344/test.mp4' type='video/mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -225,7 +235,7 @@ describe("Assets in the EPUB", function(){
 
     runs(function(){
       expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/test.mp4')).toBe(true);
-      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/800')).toBe(true);
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/test.jpg')).toBe(true);
       pp.clean();
     });
   });
@@ -233,7 +243,7 @@ describe("Assets in the EPUB", function(){
   it("handles video tag src attributes", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video controls src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.mp4'></video>";
+      pp.json.pages[0].body += "<video controls src='http://localhost:3344/test.mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -252,7 +262,7 @@ describe("Assets in the EPUB", function(){
   it("makes video inline srcs relative to the epub", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video controls src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.mp4'></video>";
+      pp.json.pages[0].body += "<video controls src='http://localhost:3344/test.mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -277,7 +287,7 @@ describe("Assets in the EPUB", function(){
   it("makes video tag paths relative to the epub", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video poster='http://placekitten.com/600/800' controls><source src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.mp4' type='video/mp4'></video>";
+      pp.json.pages[0].body += "<video poster='http://localhost:3344/printing-press.jpg' controls><source src='http://localhost:3344/test.mp4' type='video/mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -302,7 +312,7 @@ describe("Assets in the EPUB", function(){
   it("image tags need to be self-closed when there's a video", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video poster='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/printing-press.jpg' controls><source src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.mp4' type='video/mp4'></video>";
+      pp.json.pages[0].body += "<video poster='http://localhost:3344/printing-press.jpg' controls><source src='http://localhost:3344/test.mp4' type='video/mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -331,7 +341,7 @@ describe("Assets in the EPUB", function(){
   it("handles audio tags", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<audio controls><source src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.mp3' type='audio/mp3'></audio>";
+      pp.json.pages[0].body += "<audio controls><source src='http://localhost:3344/test.mp3' type='audio/mp3'></audio>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -350,7 +360,7 @@ describe("Assets in the EPUB", function(){
   it("makes audio tag paths relative to the epub", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<audio controls><source src='http://s3.amazonaws.com/net.thepeoplesebook/pe-epub/test.mp3' type='audio/mp3'></audio>";
+      pp.json.pages[0].body += "<audio controls><source src='http://localhost:3344/test.mp3' type='audio/mp3'></audio>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });

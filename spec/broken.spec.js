@@ -1,15 +1,20 @@
-var Peepub     = require('../Peepub.js');
-var _          = require('lodash');
-var fs         = require('fs');
-var cheerio    = require('cheerio');
-var path       = require('path');
-var epubJson   = require('../examples/example.json');
-var brokenJson = require('../examples/broken.json');
+var Peepub   = require('../Peepub.js');
+var _       = require('lodash');
+var fs      = require('fs');
+var cheerio = require('cheerio');
+var path    = require('path');
+var helpers = require('./helpers.js');
+
 var pp,min_pp;
 
 describe("Broken / Problematic Json", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(brokenJson), true);
+    helpers.start();
+    pp = helpers.getFull();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
   
   it("won't freak out about bad assets", function(){

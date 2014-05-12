@@ -4,24 +4,23 @@ var cheerio         = require('cheerio');
 var fs              = require('fs');
 var path            = require('path');
 var epubJson        = require('../examples/example.json');
-var minimumEpubJson = require('../examples/minimum.json');
+var helpers         = require('./helpers.js');
 var pp,min_pp;
 
 
 describe("Page Handling", function(){
   
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson), true);
+    helpers.start();
+    pp = helpers.getFull();
+    min_pp = helpers.getMin();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
   
-  it("templates the titles page", function(){
-    for(var i in epubJson.pages){
-      var reg = new RegExp('<title>\s*'+epubJson.pages[i].title+'\s*</title>');
-      expect(pp._getPage(i).match(reg)).not.toBeNull();
-    }
-  });
-  
+
   it("creates pages", function(){
     var epubPath = '';
     
@@ -264,6 +263,13 @@ describe("Page Handling", function(){
       expect(firstPage.match(/<br>/)).toBeNull();
       pp.clean();
     });
+  });
+
+  it("templates the titles page", function(){
+    for(var i in epubJson.pages){
+      var reg = new RegExp('<title>\s*'+epubJson.pages[i].title+'\s*</title>');
+      expect(pp._getPage(i).match(reg)).not.toBeNull();
+    }
   });
 
   

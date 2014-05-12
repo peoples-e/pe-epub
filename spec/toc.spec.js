@@ -2,17 +2,21 @@ var Peepub          = require('../Peepub.js');
 var _               = require('lodash');
 var cheerio         = require('cheerio');
 var fs              = require('fs');
-var epubJson        = require('../examples/example.json');
-var minimumEpubJson = require('../examples/minimum.json');
 var path            = require('path');
+var helpers         = require('./helpers.js');
 var pp,min_pp;
 
 
 describe("TOC functionality", function(){
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
+    helpers.start();
+    pp = helpers.getFull();
   });
-  
+
+  afterEach(function(){
+    helpers.stop();
+  });
+
   it("always creates a toc.html and toc.ncx", function(){
     var epubPath = '';
     
@@ -82,7 +86,7 @@ describe("TOC functionality", function(){
 
   it("in the toc.ncx, meta id tag needs to reflect whether there is an isbn", function(){
     var epubPath = '', epub2Path = '';
-    var pp2 = new Peepub(_.cloneDeep(epubJson), true);
+    var pp2 = helpers.getFull();
     
     runs(function(){
       pp.create(function(err, file){

@@ -1,8 +1,9 @@
-var Peepub  = require('../Peepub.js');
+var Peepub   = require('../Peepub.js');
 var _       = require('lodash');
 var fs      = require('fs');
 var cheerio = require('cheerio');
 var path    = require('path');
+var helpers = require('./helpers.js');
 
 describe("Peepub Basics", function() {
   it("is a function", function() {
@@ -14,8 +15,13 @@ describe("Peepub Basics", function() {
   var pp,min_pp;
   
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson), true);
+    helpers.start();
+    pp = helpers.getFull();
+    min_pp = helpers.getMin();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
   
   
@@ -89,11 +95,16 @@ describe("Content OPFs", function() {
   var minimumEpubJson = require('../examples/minimum.json');
   var pp,min_pp, pp_opf;
   
+
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
-    min_pp = new Peepub(_.cloneDeep(minimumEpubJson), true);
+    helpers.start();
+    pp = helpers.getFull();
     pp_opf = pp._contentOpf({ fetchAssets : false });
-    
+    min_pp = helpers.getMin();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
   
   it("can template", function(){

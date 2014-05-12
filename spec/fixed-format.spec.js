@@ -1,14 +1,19 @@
-var Peepub  = require('../Peepub.js');
+var Peepub   = require('../Peepub.js');
 var _       = require('lodash');
 var fs      = require('fs');
 var cheerio = require('cheerio');
-// var path    = require('path');
-var epubJson        = require('../examples/fixed-format.json');
+var helpers = require('./helpers.js');
 var pp,min_pp;
 
 describe("Fixed Format EPUB", function(){
+
   beforeEach(function(){
-    pp = new Peepub(_.cloneDeep(epubJson), true);
+    helpers.start();
+    pp = helpers.getFixed();
+  });
+
+  afterEach(function(){
+    helpers.stop();
   });
 
   it("throws without required fixed format fields", function(){
@@ -55,8 +60,8 @@ it("makes the first css stylesheet have a body size like the book", function(){
     var firstStyleSheetPath = epubPath + Peepub.EPUB_CONTENT_DIR + pp.getJson().css[0].href;
     var firstStyleSheet  = fs.readFileSync(firstStyleSheetPath, 'utf8');
     expect(fs.existsSync(firstStyleSheetPath)).toBe(true);
-    expect(firstStyleSheet.match(epubJson.fixedFormat.w + 'px')).not.toBe(null);
-    expect(firstStyleSheet.match(epubJson.fixedFormat.h + 'px')).not.toBe(null);
+    expect(firstStyleSheet.match(pp.getJson().fixedFormat.w + 'px')).not.toBe(null);
+    expect(firstStyleSheet.match(pp.getJson().fixedFormat.h + 'px')).not.toBe(null);
     pp.clean();
   });
 });

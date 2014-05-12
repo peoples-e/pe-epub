@@ -40,11 +40,7 @@ or...
 			console.log(filePath); // the same path but we made up a file name for u
 		});
 
-or, for the day we run in browsers...
 
-	myPeepub.create().then(function(base64epub){
-		console.log(base64epub); // your epub file!
-	});
 
 
 ### Testing

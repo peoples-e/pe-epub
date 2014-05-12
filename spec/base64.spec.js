@@ -7,7 +7,7 @@ var path     = require('path');
 var epubJson = require('../examples/example.json');
 var pp,min_pp;
 
-describe("outputs a base64 epub", function(){
+xdescribe("outputs a base64 epub", function(){
   beforeEach(function(){
     pp = new Peepub(_.cloneDeep(epubJson));
   });
