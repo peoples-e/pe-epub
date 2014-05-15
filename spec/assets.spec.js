@@ -140,10 +140,10 @@ describe("Assets in the EPUB", function(){
     });
   });
 
-  xit("can handle https", function(){
+  it("can handle https", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.cover = pp.json.cover.replace('http', 'https');  // this page has an image in it
+      pp.json.cover = 'https://s3.amazonaws.com/net.thepeoplesebook/pe-epub/printing-press.jpg';  
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -223,7 +223,7 @@ describe("Assets in the EPUB", function(){
   it("handles video tag assets", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video poster='http://localhost:3344/test.jpg' controls><source src='http://localhost:3344/test.mp4' type='video/mp4'></video>";
+      pp.json.pages[0].body += "<video poster='http://localhost:"+helpers.port+"/test.jpg' controls><source src='http://localhost:"+helpers.port+"/test.mp4' type='video/mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -243,7 +243,7 @@ describe("Assets in the EPUB", function(){
   it("handles video tag src attributes", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video controls src='http://localhost:3344/test.mp4'></video>";
+      pp.json.pages[0].body += "<video controls src='http://localhost:"+helpers.port+"/test.mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -262,7 +262,7 @@ describe("Assets in the EPUB", function(){
   it("makes video inline srcs relative to the epub", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video controls src='http://localhost:3344/test.mp4'></video>";
+      pp.json.pages[0].body += "<video controls src='http://localhost:"+helpers.port+"/test.mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -287,7 +287,7 @@ describe("Assets in the EPUB", function(){
   it("makes video tag paths relative to the epub", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video poster='http://localhost:3344/printing-press.jpg' controls><source src='http://localhost:3344/test.mp4' type='video/mp4'></video>";
+      pp.json.pages[0].body += "<video poster='http://localhost:"+helpers.port+"/printing-press.jpg' controls><source src='http://localhost:"+helpers.port+"/test.mp4' type='video/mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -312,7 +312,7 @@ describe("Assets in the EPUB", function(){
   it("image tags need to be self-closed when there's a video", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<video poster='http://localhost:3344/printing-press.jpg' controls><source src='http://localhost:3344/test.mp4' type='video/mp4'></video>";
+      pp.json.pages[0].body += "<video poster='http://localhost:"+helpers.port+"/printing-press.jpg' controls><source src='http://localhost:"+helpers.port+"/test.mp4' type='video/mp4'></video>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -341,7 +341,7 @@ describe("Assets in the EPUB", function(){
   it("handles audio tags", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<audio controls><source src='http://localhost:3344/test.mp3' type='audio/mp3'></audio>";
+      pp.json.pages[0].body += "<audio controls><source src='http://localhost:"+helpers.port+"/test.mp3' type='audio/mp3'></audio>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });
@@ -357,10 +357,30 @@ describe("Assets in the EPUB", function(){
     });
   });
 
+  it("handles redirects", function(){
+    var epubPath = '';
+    runs(function(){
+      pp.json.pages[0].body += "<img src='http://localhost:"+helpers.port+"/redirect' />";
+      pp.create(function(err, file){
+        epubPath = pp._epubPath();
+      });
+    });
+
+    waitsFor(function(){
+      return epubPath !== '';
+    }, "it to assemble everything");
+
+    runs(function(){
+      expect(fs.existsSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/redirect')).toBe(true);
+      expect(fs.statSync(epubPath + Peepub.EPUB_CONTENT_DIR + 'assets/redirect').size > 100).toBe(true);
+      // pp.clean();
+    });
+  });
+
   it("makes audio tag paths relative to the epub", function(){
     var epubPath = '';
     runs(function(){
-      pp.json.pages[0].body += "<audio controls><source src='http://localhost:3344/test.mp3' type='audio/mp3'></audio>";
+      pp.json.pages[0].body += "<audio controls><source src='http://localhost:"+helpers.port+"/test.mp3' type='audio/mp3'></audio>";
       pp.create(function(err, file){
         epubPath = pp._epubPath();
       });

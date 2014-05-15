@@ -1,8 +1,9 @@
 // Peepub STATIC methods //
-var http    = require('http');
-var https   = require('https');
-var Buffers = require('buffers');
-var fs      = require("fs");
+var followRedirects = require('follow-redirects');
+var http            = followRedirects.http;
+var https           = followRedirects.https;
+var Buffers         = require('buffers');
+var fs              = require("fs");
 
 
 
