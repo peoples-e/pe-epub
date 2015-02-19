@@ -476,7 +476,8 @@ Peepub.prototype._createPage = function(i, callback){
   var d        = Q.defer();
   var pad      = "00000";
   var name     = 'e' + (pad+i.toString()).slice(-pad.length);
-  var fullpath = this._epubPath() + Peepub.EPUB_CONTENT_DIR + name + '.html';
+  var href     = this.json.pages[i].href || (name + '.html');
+  var fullpath = this._epubPath() + Peepub.EPUB_CONTENT_DIR + href;
   var that     = this;
   
   var $pageBody = cheerio.load(that.json.pages[i].body);
@@ -529,7 +530,7 @@ Peepub.prototype._createPage = function(i, callback){
       // prep page for manifest + addtn'l info
       that.json.pages[i].path          = fullpath;
       that.json.pages[i].id            = name;
-      that.json.pages[i].href          = name + '.html';
+      that.json.pages[i].href          = href;
       that.json.pages[i]['media-type'] = 'application/xhtml+xml';
       if(that.json.js.length > 0){
         that.json.pages[i]['properties'] = 'scripted';
