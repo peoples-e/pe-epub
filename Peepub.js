@@ -74,7 +74,7 @@ Peepub = function Peepub(first, debug) {
 
 Peepub.EPUB_DIR         = __dirname + '/epubs/';
 Peepub.EPUB_CONTENT_DIR = 'OEBPS/'; // this is hard coded in content.opf - use handlebars if this will ever change
-Peepub.EPUB_META_DIR    = 'META-INF/'; 
+Peepub.EPUB_META_DIR    = 'META-INF/';
 
 Peepub.prototype._handleDefaults = function () {
   var that = this;
@@ -119,13 +119,13 @@ Peepub.prototype._epubDir = function(){
 
 Peepub.prototype._epubPath = function(add){
   var dir = this._epubDir() + this.id + '/';
-  if(add){ 
+  if(add){
     this._epubPath();
-    
+
     // all additions go in the content dir
     dir += Peepub.EPUB_CONTENT_DIR + add + '/';
-  } 
-  
+  }
+
   // set up the whole structure
   if(!this.useFs){
     if(_.isUndefined(this.buffers[dir + Peepub.EPUB_META_DIR + 'container.xml'] && !add)){
@@ -141,10 +141,10 @@ Peepub.prototype._epubPath = function(add){
     }
     return dir;
   }
-  
+
   if(!fs.existsSync(dir)){
     fs.mkdirSync(dir);
-    
+
     // set up the whole structure
     if(!add){
       fs.mkdirSync(dir + Peepub.EPUB_META_DIR);
@@ -161,7 +161,7 @@ Peepub.prototype._epubPath = function(add){
         this.buffers[dir + Peepub.EPUB_META_DIR + 'com.apple.ibooks.display-options.xml'] = new Buffer(handlebars.templates[templatesBase + "com.apple.ibooks.display-options.xml"]({}));
       }
     }
-  } 
+  }
   return dir;
 };
 
@@ -172,7 +172,7 @@ Peepub.prototype._fetchAssets = function(){
   var json      = this.getJson();
   var all_pages = _.map(json.pages, function(page){ return page.body; }).join('');
   var $         = this._getDom(all_pages);
-  var images    = _.filter(([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })), function(src){ return src !== ''; }); 
+  var images    = _.filter(([json.cover]).concat(_.map($('img'), function(i){ return $(i).attr('src'); })), function(src){ return src !== ''; });
   var videoSrcs = [];
   var audioSrcs = [];
 
@@ -206,15 +206,15 @@ Peepub.prototype._fetchAssets = function(){
   _.each(_.union(videoSrcs, audioSrcs, images), function(src){
 
     // Does this asset file name already exist?
-    // we're trying to keep the orig file name to make the epub contents more accessible 
+    // we're trying to keep the orig file name to make the epub contents more accessible
     var fileName = path.basename(src);
     var hrefI = 1;
-    while(_.pluck(allAssets, 'fileName').indexOf(fileName) > -1){
+    while(_.map(allAssets, 'fileName').indexOf(fileName) > -1){
       fileName = path.basename(src, path.extname(src)) + '_' + hrefI + path.extname(src);
       hrefI++;
     }
     allAssets.push({
-      src : src, 
+      src : src,
       fileName : fileName
     });
   });
@@ -303,11 +303,11 @@ Peepub.prototype._contentOpf = function(options, callback){
   var that = this;
   var d    = Q.defer();
   var json;
-  
+
   var opts = _.extend({
     fetchAssets : true
   }, options);
-  
+
   if(opts.fetchAssets){
     setupTemplates()
     .then(function () {
@@ -326,12 +326,12 @@ Peepub.prototype._contentOpf = function(options, callback){
           }
         }
       });
-      
+
       that._createPages(function(){
-        
+
         json.items    = json.items.concat(that.json.pages);   // add pages to the manifest
         json.itemrefs = that.json.pages;                      // add pages to the spine
-        
+
         that._createToc(function(){
           var contentOpf = handlebars.templates[templatesBase + "content.opf"](json);
           if(!that.useFs){
@@ -355,7 +355,7 @@ Peepub.prototype._contentOpf = function(options, callback){
       d.reject(err);
     });
     return d.promise;
-    
+
   // this is used for testing
   // synchronously returns basic contentOpf
   } else {
@@ -368,7 +368,7 @@ Peepub.prototype._createToc = function(callback){
   var that           = this;
   var json           = this.getJson();
   var finished_files = 0;
-  
+
   json.tocPages = this.getTocPages();
 
   // by default we'll make one navpoint to their first page
@@ -390,7 +390,7 @@ Peepub.prototype._createToc = function(callback){
       'media-type'  : 'application/x-dtbncx+xml'
     });
   json.css = this.assets.css;
-  
+
   var tocHtml = handlebars.templates[templatesBase + "toc.html"](json);
   var tocNcx = handlebars.templates[templatesBase + "toc.ncx"](json);
   this.buffers[this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.html'] = new Buffer(tocHtml);
@@ -406,7 +406,7 @@ Peepub.prototype._createToc = function(callback){
         callback();
       }
     });
-    
+
     fs.writeFile(this._epubPath() + Peepub.EPUB_CONTENT_DIR + 'toc.ncx', tocNcx, function(err){
       if(err) throw 'toc.ncx didnt save';
 
@@ -434,7 +434,7 @@ Peepub.prototype._getPage = function(i){
   json.js          = this.assets.js;
   json.fixedFormat = epubJson.fixedFormat;
   return handlebars.templates[templatesBase + "page.html"](json);
-  
+
 };
 
 
@@ -451,9 +451,9 @@ Peepub.prototype._createFile = function(dest, source){
                 dest : dest,
                    d : d,
               peepub : that
-              }) 
+              })
             ) return true;
-        }) 
+        })
     ){
 
     // nope - it's a string
@@ -479,7 +479,7 @@ Peepub.prototype._createPage = function(i, callback){
   var href     = this.json.pages[i].href || (name + '.html');
   var fullpath = this._epubPath() + Peepub.EPUB_CONTENT_DIR + href;
   var that     = this;
-  
+
   var $pageBody = cheerio.load(that.json.pages[i].body);
   // replace external assets with local
   _.each(that.assets.assets, function(ass){
@@ -520,13 +520,13 @@ Peepub.prototype._createPage = function(i, callback){
         $pageBody(this).attr('id', name);
       }
       $pageBody(this).attr('name', null);
-    }) 
+    })
     that.json.pages[i].body = $pageBody.html();
   }
-  
+
   this._createFile(fullpath, this._getPage(i))
     .then(function(res){
-      
+
       // prep page for manifest + addtn'l info
       that.json.pages[i].path          = fullpath;
       that.json.pages[i].id            = name;
@@ -547,7 +547,7 @@ Peepub.prototype._createPage = function(i, callback){
 
 Peepub.prototype._createPages = function(callback){
   if(!this._fetchAssetsCalled) throw "_fetchAssets needs to be called before _createPages";
-  
+
   var that           = this;
   var pagesCopy      = this.getJson().pages.slice();
   var howManyAtATime = 100;
@@ -580,18 +580,18 @@ Peepub.prototype._zip = function(callback){
   var d    = Q.defer();
   var that = this;
   var dir  = this._epubPath().slice(0,-1);
-  
+
   var epubPath = that.fileName ? that._epubDir() + that.fileName  : that._epubDir() + that.id + '.epub';
 
   var buff = new Buffer('application/epub+zip');
   zip.file('mimetype', buff.toString('base64'), { base64 : true });
   var filteredData = this.epubFiles;
-  
+
   var finished = 0;
   function is_finished(){
     finished += 1;
     if(finished === filteredData.length){
-        callback(null, zip.generate());        
+        callback(null, zip.generate());
     }
   }
 
@@ -647,7 +647,7 @@ Peepub.prototype._zipFs = function(callback){
   archive.finalize();
 
   return d.promise;
-  
+
 };
 
 Peepub = require('./src/static.js')(Peepub);
