@@ -18,7 +18,8 @@
     "follow-redirects": "0.0.3",
     "handlebars": "~1.0.11",
     "lodash": "*",
-    "q": "~0.9.7"
+    "q": "~0.9.7",
+    "shelljs": "^0.7.8"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
