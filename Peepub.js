@@ -5,6 +5,7 @@ var _            = require('lodash');
 var handlebars   = require('handlebars');
 var cheerio      = require('cheerio');
 var Q            = require('q');
+var shell        = require('shelljs');
 var JSZip        = require('./src/libs/jszip.js');
 var archiver     = require('archiver');
 var utils        = require('./src/utils.js');
@@ -143,7 +144,7 @@ Peepub.prototype._epubPath = function(add){
   }
 
   if(!fs.existsSync(dir)){
-    fs.mkdirSync(dir);
+    shell.mkdir('-p', dir);
 
     // set up the whole structure
     if(!add){
