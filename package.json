@@ -27,7 +27,7 @@
     "grunt-contrib-handlebars": "~0.5.9",
     "grunt-jslint": "~0.2.5a",
     "grunt-release": "~0.3.3",
-    "jasmine-node": "1.4.x",
+    "jasmine-node": "naeluh/jasmine-node",
     "express": "~3.0.2"
   },
   "license": "MIT"
