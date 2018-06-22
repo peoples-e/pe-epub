@@ -28,7 +28,8 @@
     "grunt-contrib-handlebars": "^1.0.0",
     "grunt-jslint": "~0.2.5a",
     "grunt-release": "^0.14.0",
-    "jasmine-node": "1.14.x"
+    "jasmine-node": "1.14.x",
+    "send": "^0.16.2"
   },
   "license": "MIT"
 }
