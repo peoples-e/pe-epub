@@ -14,21 +14,23 @@
   "dependencies": {
     "archiver": "~0.9.0",
     "buffers": "~0.1.1",
-    "cheerio": "0.10.x",
+    "cheerio": "1.0.0-rc.2",
     "follow-redirects": "0.0.3",
-    "handlebars": "~1.0.11",
-    "lodash": "*",
+    "handlebars": "^4.0.11",
+    "lodash": "^4.17.10",
     "q": "~0.9.7",
     "shelljs": "^0.7.8"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-browserify": "~1.0.x",
-    "grunt-contrib-handlebars": "~0.5.9",
+    "minimatch": "~3.0.4",
+    "express": "~3.0.2",
+    "grunt": "^1.0.3",
+    "grunt-browserify": "^5.3.0",
+    "grunt-contrib-handlebars": "^1.0.0",
     "grunt-jslint": "~0.2.5a",
-    "grunt-release": "~0.3.3",
-    "jasmine-node": "1.4.x",
-    "express": "~3.0.2"
+    "grunt-release": "^0.14.0",
+    "jasmine-node": "1.14.x",
+    "send": "^0.16.2"
   },
   "license": "MIT"
 }
